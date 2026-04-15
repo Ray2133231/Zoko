@@ -75,10 +75,6 @@ MainFrame.Visible = true
 MainFrame.ClipsDescendants = true
 MainFrame.Parent = ScreenGui
 
--- تأثير الزجاج الفخم (Blur)
-local MainBlur = Instance.new("UIBlurEffect", MainFrame)
-MainBlur.Size = 15
-
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 12)
 local Stroke = Instance.new("UIStroke", MainFrame)
 Stroke.Color = Color3.fromRGB(255, 30, 30) -- إطار أحمر نيون
@@ -143,9 +139,6 @@ local function Notify(titleText, descText, color)
     NotifFrame.ZIndex = 200
     NotifFrame.Parent = ScreenGui
     
-    local NBlur = Instance.new("UIBlurEffect", NotifFrame)
-    NBlur.Size = 10
-    
     Instance.new("UICorner", NotifFrame).CornerRadius = UDim.new(0, 10)
     local NStroke = Instance.new("UIStroke", NotifFrame)
     NStroke.Color = useColor
@@ -191,7 +184,6 @@ TpFrame.BackgroundColor3 = Color3.fromRGB(20, 5, 5)
 TpFrame.BackgroundTransparency = 0.45
 TpFrame.Visible = false
 TpFrame.Parent = ScreenGui
-local TpBlur = Instance.new("UIBlurEffect", TpFrame) TpBlur.Size = 15
 Instance.new("UICorner", TpFrame).CornerRadius = UDim.new(0, 12)
 local TStroke = Instance.new("UIStroke", TpFrame)
 TStroke.Color = Color3.fromRGB(255, 30, 30)
@@ -285,7 +277,6 @@ ModalFrame.BackgroundColor3 = Color3.fromRGB(30, 5, 5)
 ModalFrame.BackgroundTransparency = 0.2
 ModalFrame.Visible = false
 ModalFrame.ZIndex = 50 
-local ModBlur = Instance.new("UIBlurEffect", ModalFrame) ModBlur.Size = 10
 Instance.new("UICorner", ModalFrame).CornerRadius = UDim.new(0, 10)
 Instance.new("UIStroke", ModalFrame).Color = Color3.fromRGB(255, 30, 30)
 
@@ -334,7 +325,6 @@ ContextMenu.BackgroundColor3 = Color3.fromRGB(25, 5, 5)
 ContextMenu.BackgroundTransparency = 0.3
 ContextMenu.Visible = false
 ContextMenu.ZIndex = 50
-local CtxBlur = Instance.new("UIBlurEffect", ContextMenu) CtxBlur.Size = 10
 Instance.new("UICorner", ContextMenu).CornerRadius = UDim.new(0, 6)
 Instance.new("UIStroke", ContextMenu).Color = Color3.fromRGB(255, 30, 30)
 
@@ -707,7 +697,6 @@ ControlFrame.BackgroundColor3 = Color3.fromRGB(20, 5, 5)
 ControlFrame.BackgroundTransparency = 0.45
 ControlFrame.Visible = false
 ControlFrame.Parent = ScreenGui
-local CtrlBlur = Instance.new("UIBlurEffect", ControlFrame) CtrlBlur.Size = 15
 Instance.new("UICorner", ControlFrame).CornerRadius = UDim.new(0, 12)
 local CStroke = Instance.new("UIStroke", ControlFrame)
 CStroke.Color = Color3.fromRGB(255, 30, 30)
@@ -891,7 +880,6 @@ SpecFrame.BackgroundTransparency = 0.4
 SpecFrame.Visible = false
 SpecFrame.Parent = ScreenGui
 Instance.new("UICorner", SpecFrame).CornerRadius = UDim.new(0, 10)
-local SpcBlur = Instance.new("UIBlurEffect", SpecFrame) SpcBlur.Size = 10
 Instance.new("UIStroke", SpecFrame).Color = Color3.fromRGB(255, 30, 30)
 
 local SpecImage = Instance.new("ImageLabel", SpecFrame)
@@ -1714,7 +1702,6 @@ OpenBtn.Size = UDim2.new(0, 45, 0, 45)
 OpenBtn.Position = UDim2.new(0, 15, 0.5, 0)
 OpenBtn.BackgroundColor3 = Color3.fromRGB(20, 5, 5)
 OpenBtn.BackgroundTransparency = 0.3
-local OpenBlur = Instance.new("UIBlurEffect", OpenBtn) OpenBlur.Size = 10
 OpenBtn.Text = "Z"
 OpenBtn.Font = Enum.Font.GothamBlack
 OpenBtn.TextSize = 22
