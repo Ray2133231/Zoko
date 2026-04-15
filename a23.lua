@@ -4,7 +4,7 @@
 local Status_URL = "https://raw.githubusercontent.com/Ray2133231/Zoko/0d6a2a48e605c97d0676b9b48e376b917a348a79/a23.lua" 
 
 -- 2. رابط الكود الأساسي (الملف الثاني - يفضل يكون مشفر وما تعطيه لأحد مباشرة)
-local CoreScript_URL = "رابط_الملف_الثاني_الأساسي_هنا"
+local CoreScript_URL = "https://raw.githubusercontent.com/Ray2133231/Zoko2/refs/heads/main/main.lua"
 
 local function LoadZoko()
     local success, status = pcall(function()
