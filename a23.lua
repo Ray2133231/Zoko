@@ -1526,7 +1526,7 @@ BtnGraphics.MouseButton1Click:Connect(function()
         OriginalWater.WaveSpeed = workspace.Terrain.WaterWaveSpeed
         OriginalWater.Transparency = workspace.Terrain.WaterTransparency
 
-        -- تشغيل التعديلات باستخدام task.spawn عشان ما يعلق السكربت نهائياً
+        -- تشغيل التعديلات باستخدام task.spawn عشان ما يعلق السكربت واللعبة
         task.spawn(function()
             pcall(function()
                 -- استخدام إضاءة Future للواقعية المطلقة
@@ -1534,67 +1534,116 @@ BtnGraphics.MouseButton1Click:Connect(function()
             end)
 
             pcall(function()
-                -- إضاءة متوازنة وممتازة لا تعمي العين
+                -- 1. الإضاءة السينمائية (PBR)
                 Lighting.GlobalShadows = true
-                Lighting.Brightness = 2.5
+                Lighting.Brightness = 3
                 Lighting.ClockTime = 16.5 -- وقت الغروب الذهبي لستايل فورزا
-                Lighting.Ambient = Color3.fromRGB(50, 50, 50)
-                Lighting.OutdoorAmbient = Color3.fromRGB(70, 70, 70)
-                Lighting.ExposureCompensation = 0.1 
+                Lighting.Ambient = Color3.fromRGB(60, 60, 60)
+                Lighting.OutdoorAmbient = Color3.fromRGB(80, 80, 90)
+                Lighting.ColorShift_Top = Color3.fromRGB(255, 245, 235)
+                Lighting.ExposureCompensation = 0.15 
+                
+                -- الأهم لمعان السيارات!
                 Lighting.EnvironmentDiffuseScale = 1
                 Lighting.EnvironmentSpecularScale = 1
                 
-                -- تفعيل العشب والخامات العالية الدقة
+                -- 2. تفعيل العشب 3D والخامات العالية
                 workspace.Terrain.Decoration = true
                 MaterialService.Use2022Materials = true
 
-                -- واقعية المياه
-                workspace.Terrain.WaterColor = Color3.fromRGB(10, 40, 50)
+                -- 3. واقعية المياه 8K
+                workspace.Terrain.WaterColor = Color3.fromRGB(15, 50, 60)
                 workspace.Terrain.WaterReflectance = 1
-                workspace.Terrain.WaterWaveSize = 0.15
-                workspace.Terrain.WaterWaveSpeed = 12
-                workspace.Terrain.WaterTransparency = 0.9
+                workspace.Terrain.WaterWaveSize = 0.1
+                workspace.Terrain.WaterWaveSpeed = 15
+                workspace.Terrain.WaterTransparency = 0.95
                 
-                -- فلتر لوني دافئ ومشبع يعطيك إحساس فورزا 
+                -- 4. فلاتر التنعيم والألوان
                 if not Lighting:FindFirstChild("ZokoForzaColor") then
                     local CC = Instance.new("ColorCorrectionEffect", Lighting)
                     CC.Name = "ZokoForzaColor"
-                    CC.Brightness = 0.05
-                    CC.Contrast = 0.25
-                    CC.Saturation = 0.35 
-                    CC.TintColor = Color3.fromRGB(255, 240, 220) 
+                    CC.Brightness = 0.02
+                    CC.Contrast = 0.15
+                    CC.Saturation = 0.4 
+                    CC.TintColor = Color3.fromRGB(255, 248, 235) 
                 end
 
-                -- غيوم واقعية إذا كانت مدعومة في اللعبة
+                if not Lighting:FindFirstChild("ZokoDOF") then
+                    local DOF = Instance.new("DepthOfFieldEffect", Lighting)
+                    DOF.Name = "ZokoDOF"
+                    DOF.Intensity = 0.2
+                    DOF.FocusDistance = 50
+                    DOF.InFocusRadius = 50 
+                end
+
+                if not Lighting:FindFirstChild("ZokoSun") then
+                    local Sun = Instance.new("SunRaysEffect", Lighting)
+                    Sun.Name = "ZokoSun"
+                    Sun.Intensity = 0.06
+                    Sun.Spread = 0.8
+                end
+
+                -- 5. السماء والغيوم الواقعية
+                if not Lighting:FindFirstChild("ZokoAtmo") then
+                    local atmosphere = Instance.new("Atmosphere", Lighting)
+                    atmosphere.Name = "ZokoAtmo"
+                    atmosphere.Density = 0.3
+                    atmosphere.Offset = 0.25
+                    atmosphere.Color = Color3.fromRGB(199, 199, 199)
+                    atmosphere.Decay = Color3.fromRGB(106, 112, 125)
+                    atmosphere.Glare = 0.4
+                    atmosphere.Haze = 1.5
+                end
+
                 if not workspace.Terrain:FindFirstChild("ZokoClouds") then
                     local clouds = Instance.new("Clouds", workspace.Terrain)
                     clouds.Name = "ZokoClouds"
-                    clouds.Cover = 0.5
-                    clouds.Density = 0.8
+                    clouds.Cover = 0.65
+                    clouds.Density = 0.7
                     clouds.Color = Color3.fromRGB(255, 255, 255)
                 end
             end)
 
-            -- نظام الانعكاسات للسيارات والقزاز 
-            for _, obj in pairs(workspace:GetDescendants()) do
+            -- 6. الذكاء الاصطناعي لتعديل الخامات (سيارات، أشجار، عشب) بدون تعليق
+            local descendants = workspace:GetDescendants()
+            for i, obj in ipairs(descendants) do
                 if obj:IsA("BasePart") then
-                    -- تحويل الأشياء الشفافة أو القزاز لانعكاس عالي (ستايل Glassmorphism أسطوري)
-                    if obj.Material == Enum.Material.Glass or obj.Transparency > 0.1 and obj.Transparency < 1 then
+                    local name = obj.Name:lower()
+                    local mat = obj.Material
+
+                    -- تحويل السيارات للريتريسنق بدون توهج مزعج
+                    if mat == Enum.Material.Glass or mat == Enum.Material.SmoothPlastic or mat == Enum.Material.Metal then
+                        if obj.Transparency < 1 then
+                            obj.Reflectance = 0.8
+                            if obj.Material == Enum.Material.Neon then 
+                                obj.Material = Enum.Material.SmoothPlastic -- إزالة التوهج الغلط
+                            end
+                        end
+                    elseif name:match("car") or name:match("window") or name:match("glass") or name:match("mirror") then
                         obj.Material = Enum.Material.Glass
-                        obj.Reflectance = 1 
-                    -- إذا كان الجسم جزء من سيارة، نعطيه لمعة
-                    elseif obj.Name:lower():match("car") or obj.Name:lower():match("vehicle") or obj.Name:lower():match("body") then
-                        obj.Reflectance = math.clamp(obj.Reflectance + 0.5, 0, 1)
+                        obj.Reflectance = 0.9
+                    end
+
+                    -- التعرف على كل أنواع الأشجار والنباتات بقوة
+                    if name:match("tree") or name:match("leaf") or name:match("leaves") or name:match("bush") or name:match("grass") or name:match("plant") or name:match("wood") or name:match("trunk") then
+                        -- للورق والعشب والشجيرات
+                        if name:match("leaf") or name:match("leaves") or name:match("bush") or obj.Color.G > obj.Color.R + 0.1 then
+                            obj.Material = Enum.Material.LeafyGrass
+                        -- لجذوع الشجر والخشب
+                        elseif name:match("wood") or name:match("trunk") or name:match("tree") then
+                            obj.Material = Enum.Material.Wood
+                        end
                     end
                 end
+                -- لمنع الكراش نعطيه تنفس بسيط جداً
+                if i % 1000 == 0 then task.wait() end
             end
         end)
 
-        -- تفعيل أنميشنات وحركة الكاميرا (AAA Feel) وتأثيرات النار
+        -- تفعيل حركة الكاميرا وتأثيرات الانفجارات والنار
         local tick_time = 0
         local cam = workspace.CurrentCamera
         
-        -- تعزيز الانفجارات والنار بمجرد ظهورها
         ParticleConnection = workspace.DescendantAdded:Connect(function(obj)
             if Features.RTXGraphics then
                 if obj:IsA("Explosion") then
@@ -1623,23 +1672,20 @@ BtnGraphics.MouseButton1Click:Connect(function()
 
             local speed = hrp.Velocity.Magnitude
 
-            -- نظام الـ FOV الديناميكي (يتسع عند السرعة العالية مثل سيارات فورزا)
             local targetFOV = 70 + math.clamp(speed / 4, 0, 35)
             cam.FieldOfView = cam.FieldOfView + (targetFOV - cam.FieldOfView) * 0.1
 
-            -- نظام اهتزاز الكاميرا والمشي الواقعي (Camera Bobbing)
             if speed > 1 and hum.FloorMaterial ~= Enum.Material.Air and hum.SeatPart == nil then
                 tick_time = tick_time + dt * speed * 0.6
                 local bobbingX = math.cos(tick_time) * 0.12
                 local bobbingY = math.abs(math.sin(tick_time)) * 0.12
-                -- دمج الاهتزاز مع الكاميرا بدون تخريب التصويب
                 hum.CameraOffset = hum.CameraOffset:Lerp(Vector3.new(bobbingX, bobbingY, 0), 0.2)
             else
                 hum.CameraOffset = hum.CameraOffset:Lerp(Vector3.new(0, 0, 0), 0.1)
             end
         end)
 
-        Notify("AAA Realism", "تم تفعيل جرافيكس وحركة فورزا! ستلاحظ انعكاسات قوية، ألوان سينمائية وعشب واقعي.", Color3.fromRGB(0, 255, 127))
+        Notify("8K Realism", "تم تركيب جودة فورزا بنجاح! انعكاسات قوية على السيارات، عشب 3D، وألوان مدمرة.", Color3.fromRGB(0, 255, 127))
     else
         task.spawn(function()
             pcall(function()
@@ -1648,6 +1694,8 @@ BtnGraphics.MouseButton1Click:Connect(function()
                 Lighting.Ambient = OriginalLighting.Ambient or Color3.fromRGB(128, 128, 128)
                 Lighting.OutdoorAmbient = OriginalLighting.OutdoorAmbient or Color3.fromRGB(128, 128, 128)
                 Lighting.ExposureCompensation = OriginalLighting.ExposureCompensation or 0
+                Lighting.EnvironmentDiffuseScale = 0
+                Lighting.EnvironmentSpecularScale = 0
                 
                 workspace.Terrain.Decoration = false
                 MaterialService.Use2022Materials = false
@@ -1659,6 +1707,9 @@ BtnGraphics.MouseButton1Click:Connect(function()
                 workspace.Terrain.WaterTransparency = OriginalWater.Transparency or 0.3
 
                 if Lighting:FindFirstChild("ZokoForzaColor") then Lighting.ZokoForzaColor:Destroy() end
+                if Lighting:FindFirstChild("ZokoDOF") then Lighting.ZokoDOF:Destroy() end
+                if Lighting:FindFirstChild("ZokoSun") then Lighting.ZokoSun:Destroy() end
+                if Lighting:FindFirstChild("ZokoAtmo") then Lighting.ZokoAtmo:Destroy() end
                 if workspace.Terrain:FindFirstChild("ZokoClouds") then workspace.Terrain.ZokoClouds:Destroy() end
                 
                 if AAALoop then AAALoop:Disconnect() end
@@ -1670,7 +1721,7 @@ BtnGraphics.MouseButton1Click:Connect(function()
                 end
             end)
         end)
-        Notify("Graphics", "تم إرجاع الجرافيكس والحركة الكلاسيكية.", Color3.fromRGB(200, 200, 200))
+        Notify("Graphics", "تم إرجاع الجرافيكس للحالة الأصلية.", Color3.fromRGB(200, 200, 200))
     end
 end)
 
