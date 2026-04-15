@@ -1504,6 +1504,7 @@ end)
 -----------------------------------
 local OriginalLighting = {}
 local OriginalWater = {}
+local OriginalPartData = {} -- لحفظ حالة كل قطعة قبل تعديلها
 local AAALoop
 local ParticleConnection
 
@@ -1513,7 +1514,7 @@ BtnGraphics.MouseButton1Click:Connect(function()
     BtnGraphics.TextColor3 = Features.RTXGraphics and Color3.fromRGB(0, 255, 127) or Color3.fromRGB(200, 200, 200)
 
     if Features.RTXGraphics then
-        -- حفظ الإعدادات الأصلية
+        -- حفظ إعدادات الإضاءة والمياه الأصلية
         OriginalLighting.GlobalShadows = Lighting.GlobalShadows
         OriginalLighting.Brightness = Lighting.Brightness
         OriginalLighting.Ambient = Lighting.Ambient
@@ -1526,73 +1527,60 @@ BtnGraphics.MouseButton1Click:Connect(function()
         OriginalWater.WaveSpeed = workspace.Terrain.WaterWaveSpeed
         OriginalWater.Transparency = workspace.Terrain.WaterTransparency
 
-        -- تشغيل التعديلات باستخدام task.spawn عشان ما يعلق السكربت واللعبة
         task.spawn(function()
             pcall(function()
-                -- استخدام إضاءة Future للواقعية المطلقة
-                sethiddenproperty(Lighting, "Technology", 3)
+                sethiddenproperty(Lighting, "Technology", 3) -- Future Lighting
             end)
 
             pcall(function()
-                -- 1. الإضاءة السينمائية (PBR)
+                -- 1. الإضاءة السينمائية
                 Lighting.GlobalShadows = true
                 Lighting.Brightness = 3
-                Lighting.ClockTime = 16.5 -- وقت الغروب الذهبي لستايل فورزا
-                Lighting.Ambient = Color3.fromRGB(60, 60, 60)
-                Lighting.OutdoorAmbient = Color3.fromRGB(80, 80, 90)
-                Lighting.ColorShift_Top = Color3.fromRGB(255, 245, 235)
-                Lighting.ExposureCompensation = 0.15 
-                
-                -- الأهم لمعان السيارات!
+                Lighting.ClockTime = 16.5 
+                Lighting.Ambient = Color3.fromRGB(70, 70, 70)
+                Lighting.OutdoorAmbient = Color3.fromRGB(90, 90, 100)
+                Lighting.ColorShift_Top = Color3.fromRGB(255, 240, 220)
+                Lighting.ExposureCompensation = 0.2 
                 Lighting.EnvironmentDiffuseScale = 1
                 Lighting.EnvironmentSpecularScale = 1
                 
-                -- 2. تفعيل العشب 3D والخامات العالية
+                -- 2. تفعيل العشب والخامات الجديدة بشكل إجباري
                 workspace.Terrain.Decoration = true
                 MaterialService.Use2022Materials = true
 
-                -- 3. واقعية المياه 8K
-                workspace.Terrain.WaterColor = Color3.fromRGB(15, 50, 60)
+                -- 3. الموية الواقعية (تتحرك بشكل أسرع وأكبر)
+                workspace.Terrain.WaterColor = Color3.fromRGB(15, 60, 75)
                 workspace.Terrain.WaterReflectance = 1
-                workspace.Terrain.WaterWaveSize = 0.1
-                workspace.Terrain.WaterWaveSpeed = 15
-                workspace.Terrain.WaterTransparency = 0.95
+                workspace.Terrain.WaterWaveSize = 0.35 -- أمواج واضحة
+                workspace.Terrain.WaterWaveSpeed = 22  -- سرعة واقعية
+                workspace.Terrain.WaterTransparency = 0.8
                 
                 -- 4. فلاتر التنعيم والألوان
                 if not Lighting:FindFirstChild("ZokoForzaColor") then
                     local CC = Instance.new("ColorCorrectionEffect", Lighting)
                     CC.Name = "ZokoForzaColor"
                     CC.Brightness = 0.02
-                    CC.Contrast = 0.15
-                    CC.Saturation = 0.4 
+                    CC.Contrast = 0.18
+                    CC.Saturation = 0.45 
                     CC.TintColor = Color3.fromRGB(255, 248, 235) 
-                end
-
-                if not Lighting:FindFirstChild("ZokoDOF") then
-                    local DOF = Instance.new("DepthOfFieldEffect", Lighting)
-                    DOF.Name = "ZokoDOF"
-                    DOF.Intensity = 0.2
-                    DOF.FocusDistance = 50
-                    DOF.InFocusRadius = 50 
                 end
 
                 if not Lighting:FindFirstChild("ZokoSun") then
                     local Sun = Instance.new("SunRaysEffect", Lighting)
                     Sun.Name = "ZokoSun"
-                    Sun.Intensity = 0.06
-                    Sun.Spread = 0.8
+                    Sun.Intensity = 0.08
+                    Sun.Spread = 0.9
                 end
 
-                -- 5. السماء والغيوم الواقعية
                 if not Lighting:FindFirstChild("ZokoAtmo") then
                     local atmosphere = Instance.new("Atmosphere", Lighting)
                     atmosphere.Name = "ZokoAtmo"
-                    atmosphere.Density = 0.3
+                    atmosphere.Density = 0.35
                     atmosphere.Offset = 0.25
                     atmosphere.Color = Color3.fromRGB(199, 199, 199)
                     atmosphere.Decay = Color3.fromRGB(106, 112, 125)
-                    atmosphere.Glare = 0.4
-                    atmosphere.Haze = 1.5
+                    atmosphere.Glare = 0.5
+                    atmosphere.Haze = 1.8
                 end
 
                 if not workspace.Terrain:FindFirstChild("ZokoClouds") then
@@ -1604,65 +1592,49 @@ BtnGraphics.MouseButton1Click:Connect(function()
                 end
             end)
 
-            -- 6. الذكاء الاصطناعي لتعديل الخامات (سيارات، أشجار، عشب) بدون تعليق
+            -- 5. التعديل الذكي للخامات (يحفظ شكلها عشان يقدر يرجعه)
             local descendants = workspace:GetDescendants()
             for i, obj in ipairs(descendants) do
                 if obj:IsA("BasePart") then
-                    local name = obj.Name:lower()
-                    local mat = obj.Material
+                    -- حفظ الداتا الأصلية قبل ما نلعب فيها
+                    if not OriginalPartData[obj] then
+                        OriginalPartData[obj] = {
+                            Material = obj.Material,
+                            Reflectance = obj.Reflectance,
+                            Transparency = obj.Transparency
+                        }
+                    end
 
-                    -- تحويل السيارات للريتريسنق بدون توهج مزعج
-                    if mat == Enum.Material.Glass or mat == Enum.Material.SmoothPlastic or mat == Enum.Material.Metal then
-                        if obj.Transparency < 1 then
-                            obj.Reflectance = 0.8
-                            if obj.Material == Enum.Material.Neon then 
-                                obj.Material = Enum.Material.SmoothPlastic -- إزالة التوهج الغلط
-                            end
-                        end
-                    elseif name:match("car") or name:match("window") or name:match("glass") or name:match("mirror") then
+                    local name = obj.Name:lower()
+
+                    -- إذا كان شباك أو قزاز (شفاف)
+                    if name:match("window") or name:match("glass") or name:match("windshield") or name:match("mirror") then
                         obj.Material = Enum.Material.Glass
                         obj.Reflectance = 0.9
-                    end
-
-                    -- التعرف على كل أنواع الأشجار والنباتات بقوة
-                    if name:match("tree") or name:match("leaf") or name:match("leaves") or name:match("bush") or name:match("grass") or name:match("plant") or name:match("wood") or name:match("trunk") then
-                        -- للورق والعشب والشجيرات
-                        if name:match("leaf") or name:match("leaves") or name:match("bush") or obj.Color.G > obj.Color.R + 0.1 then
-                            obj.Material = Enum.Material.LeafyGrass
-                        -- لجذوع الشجر والخشب
-                        elseif name:match("wood") or name:match("trunk") or name:match("tree") then
-                            obj.Material = Enum.Material.Wood
+                        obj.Transparency = math.max(0.4, obj.Transparency)
+                    -- إذا كان جزء من سيارة (بودي) نعطيه لمعة بدون قزاز عشان ما يفقد لونه
+                    elseif name:match("car") or name:match("body") or name:match("vehicle") or name:match("hood") or name:match("door") then
+                        if obj.Material == Enum.Material.Plastic or obj.Material == Enum.Material.SmoothPlastic or obj.Material == Enum.Material.Neon then
+                            obj.Material = Enum.Material.SmoothPlastic
+                            obj.Reflectance = 0.5 -- لمعة الميتاليك 
                         end
+                    -- الأعشاب والأشجار والتراب
+                    elseif name:match("tree") or name:match("leaf") or name:match("leaves") or name:match("bush") or name:match("grass") then
+                        obj.Material = Enum.Material.LeafyGrass
+                    elseif name:match("dirt") or name:match("ground") or name:match("mud") or name:match("sand") then
+                        obj.Material = Enum.Material.Mud
+                    elseif name:match("wood") or name:match("trunk") then
+                        obj.Material = Enum.Material.Wood
                     end
                 end
-                -- لمنع الكراش نعطيه تنفس بسيط جداً
-                if i % 1000 == 0 then task.wait() end
+                if i % 1000 == 0 then task.wait() end -- يمنع التعليق واللاق
             end
         end)
 
-        -- تفعيل حركة الكاميرا وتأثيرات الانفجارات والنار
+        -- 6. الكاميرا الأسطورية (اهتزاز للسيارات والمشي)
         local tick_time = 0
         local cam = workspace.CurrentCamera
         
-        ParticleConnection = workspace.DescendantAdded:Connect(function(obj)
-            if Features.RTXGraphics then
-                if obj:IsA("Explosion") then
-                    obj.BlastPressure = obj.BlastPressure * 1.5
-                    obj.ExplosionType = Enum.ExplosionType.Craters
-                elseif obj:IsA("Fire") then
-                    obj.Size = obj.Size * 1.5
-                    obj.Heat = obj.Heat * 1.2
-                    if obj.Parent and not obj.Parent:FindFirstChild("ZokoFireLight") then
-                        local light = Instance.new("PointLight", obj.Parent)
-                        light.Name = "ZokoFireLight"
-                        light.Color = obj.Color
-                        light.Range = obj.Size * 2.5
-                        light.Brightness = 2.5
-                    end
-                end
-            end
-        end)
-
         AAALoop = RunService.RenderStepped:Connect(function(dt)
             local char = Player.Character
             if not char then return end
@@ -1671,22 +1643,35 @@ BtnGraphics.MouseButton1Click:Connect(function()
             if not hum or not hrp then return end
 
             local speed = hrp.Velocity.Magnitude
+            local isVehicle = hum.SeatPart ~= nil
 
-            local targetFOV = 70 + math.clamp(speed / 4, 0, 35)
+            -- زوم عكسي ذكي مع السرعة (عشان تحس بقوة السرعة)
+            local targetFOV = 70 + math.clamp(speed / 3.5, 0, 45)
             cam.FieldOfView = cam.FieldOfView + (targetFOV - cam.FieldOfView) * 0.1
 
-            if speed > 1 and hum.FloorMaterial ~= Enum.Material.Air and hum.SeatPart == nil then
-                tick_time = tick_time + dt * speed * 0.6
-                local bobbingX = math.cos(tick_time) * 0.12
-                local bobbingY = math.abs(math.sin(tick_time)) * 0.12
-                hum.CameraOffset = hum.CameraOffset:Lerp(Vector3.new(bobbingX, bobbingY, 0), 0.2)
+            if speed > 1 and hum.FloorMaterial ~= Enum.Material.Air then
+                if not isVehicle then
+                    -- اهتزاز المشي الطبيعي
+                    tick_time = tick_time + dt * speed * 0.7
+                    local bobbingX = math.cos(tick_time) * 0.15
+                    local bobbingY = math.abs(math.sin(tick_time)) * 0.15
+                    hum.CameraOffset = hum.CameraOffset:Lerp(Vector3.new(bobbingX, bobbingY, 0), 0.2)
+                else
+                    -- اهتزاز وارتجاف الكاميرا داخل السيارة بسبب المكينة والسرعة
+                    local shakeIntensity = math.clamp(speed / 120, 0, 0.4)
+                    local shakeX = (math.random() - 0.5) * shakeIntensity
+                    local shakeY = (math.random() - 0.5) * shakeIntensity
+                    local shakeZ = (math.random() - 0.5) * shakeIntensity
+                    hum.CameraOffset = hum.CameraOffset:Lerp(Vector3.new(shakeX, shakeY, shakeZ), 0.4)
+                end
             else
                 hum.CameraOffset = hum.CameraOffset:Lerp(Vector3.new(0, 0, 0), 0.1)
             end
         end)
 
-        Notify("8K Realism", "تم تركيب جودة فورزا بنجاح! انعكاسات قوية على السيارات، عشب 3D، وألوان مدمرة.", Color3.fromRGB(0, 255, 127))
+        Notify("AAA Realism", "تم التفعيل! سيارات واقعية، مويه تتفاعل، أعشاب 3D وحركة كاميرا خرافية.", Color3.fromRGB(0, 255, 127))
     else
+        -- عملية الإغلاق والرجوع للوضع الأصلي
         task.spawn(function()
             pcall(function()
                 Lighting.GlobalShadows = OriginalLighting.GlobalShadows or true
@@ -1707,13 +1692,21 @@ BtnGraphics.MouseButton1Click:Connect(function()
                 workspace.Terrain.WaterTransparency = OriginalWater.Transparency or 0.3
 
                 if Lighting:FindFirstChild("ZokoForzaColor") then Lighting.ZokoForzaColor:Destroy() end
-                if Lighting:FindFirstChild("ZokoDOF") then Lighting.ZokoDOF:Destroy() end
                 if Lighting:FindFirstChild("ZokoSun") then Lighting.ZokoSun:Destroy() end
                 if Lighting:FindFirstChild("ZokoAtmo") then Lighting.ZokoAtmo:Destroy() end
                 if workspace.Terrain:FindFirstChild("ZokoClouds") then workspace.Terrain.ZokoClouds:Destroy() end
                 
+                -- إرجاع الخامات لكل قطعة لمكانها الطبيعي
+                for obj, data in pairs(OriginalPartData) do
+                    if obj and obj.Parent then
+                        obj.Material = data.Material
+                        obj.Reflectance = data.Reflectance
+                        obj.Transparency = data.Transparency
+                    end
+                end
+                OriginalPartData = {} -- تفريغ الذاكرة
+                
                 if AAALoop then AAALoop:Disconnect() end
-                if ParticleConnection then ParticleConnection:Disconnect() end
                 
                 workspace.CurrentCamera.FieldOfView = 70
                 if Player.Character and Player.Character:FindFirstChild("Humanoid") then
@@ -1721,7 +1714,7 @@ BtnGraphics.MouseButton1Click:Connect(function()
                 end
             end)
         end)
-        Notify("Graphics", "تم إرجاع الجرافيكس للحالة الأصلية.", Color3.fromRGB(200, 200, 200))
+        Notify("Graphics", "تم إرجاع الجرافيكس للحالة الأصلية بكل نجاح.", Color3.fromRGB(200, 200, 200))
     end
 end)
 
