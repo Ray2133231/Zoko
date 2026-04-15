@@ -1290,7 +1290,11 @@ BtnGraphics.MouseButton1Click:Connect(function()
                 dof.InFocusRadius = 50
                 dof.NearIntensity = 0.1
             end
-            
+        end)
+        
+        -- السحر هنا لمنع التعليق (Batch Processing)
+        task.spawn(function()
+            local count = 0
             for _, part in pairs(workspace:GetDescendants()) do
                 if part:IsA("BasePart") then
                     if part.Material == Enum.Material.Plastic then
@@ -1301,6 +1305,8 @@ BtnGraphics.MouseButton1Click:Connect(function()
                     end
                     table.insert(PartsModified, part)
                 end
+                count = count + 1
+                if count % 400 == 0 then task.wait() end -- يفحص 400 قطعة ثم يعطي اللعبة راحة عشان ما تتجمد
             end
         end)
 
@@ -1919,9 +1925,10 @@ PercentText.TextSize = 14
 LoadingFrame:TweenSizeAndPosition(UDim2.new(0, 320, 0, 130), UDim2.new(0.5, -160, 0.5, -65), "Out", "Back", 0.5, true)
 task.wait(0.6)
 
--- تشغيل العداد والشريط
+-- تشغيل العداد والشريط (سريع جداً الآن)
 task.spawn(function()
-    local tweenInfo = TweenInfo.new(2.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+    local loadTime = 0.8 -- خفضنا الوقت لأقل من ثانية
+    local tweenInfo = TweenInfo.new(loadTime, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
     local barTween = TweenService:Create(BarFill, tweenInfo, {Size = UDim2.new(1, 0, 1, 0)})
     barTween:Play()
 
@@ -1936,10 +1943,10 @@ task.spawn(function()
     for i = 1, 100 do
         PercentText.Text = i .. "%"
         if steps[i] then StatusText.Text = steps[i] end
-        task.wait(2.5 / 100)
+        if i % 4 == 0 then task.wait() end -- يفحص بسرعة خيالية لتقليل الوقت
     end
 
-    task.wait(0.4)
+    task.wait(0.2)
     
     -- إخفاء شاشة التحميل
     LoadingFrame:TweenSize(UDim2.new(0, 0, 0, 0), "In", "Back", 0.4, true)
