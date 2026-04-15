@@ -6,6 +6,7 @@ local VirtualUser = game:GetService("VirtualUser")
 local TweenService = game:GetService("TweenService")
 local HttpService = game:GetService("HttpService")
 local Lighting = game:GetService("Lighting")
+local MaterialService = game:GetService("MaterialService")
 local Mouse = Player:GetMouse()
 
 if _G.ZokoUI then pcall(function() _G.ZokoUI:Destroy() end) end
@@ -1110,7 +1111,7 @@ local BtnRevive = CreateButton("Revive", ScrollFrame)
 local BtnNoclip = CreateButton("Noclip: OFF", ScrollFrame)
 local BtnInstant = CreateButton("Instant Interact: OFF", ScrollFrame)
 local BtnSuperHit = CreateButton("Super Hero Hit : OFF", ScrollFrame)
-local BtnGraphics = CreateButton("AAA RTX Graphics : OFF", ScrollFrame) -- زر الجرافيكس الجديد
+local BtnGraphics = CreateButton("AAA RTX Graphics : OFF", ScrollFrame)
 local BtnInfJump = CreateButton("Infinite Jump: OFF", ScrollFrame)
 local BtnAntiAFK = CreateButton("Anti-AFK: ON", ScrollFrame)
 BtnAntiAFK.TextColor3 = Color3.fromRGB(0, 255, 127)
@@ -1499,82 +1500,132 @@ BtnSuperHit.MouseButton1Click:Connect(function()
 end)
 
 -----------------------------------
--- نظام الجرافيكس الأسطوري (AAA Graphics) --
+-- نظام الجرافيكس الأسطوري (AAA Graphics & Realism) --
 -----------------------------------
 local OriginalLighting = {}
+local OriginalWater = {}
+local AAALoop
+local ParticleConnection
+
 BtnGraphics.MouseButton1Click:Connect(function()
     Features.RTXGraphics = not Features.RTXGraphics
     BtnGraphics.Text = "AAA RTX Graphics : " .. (Features.RTXGraphics and "ON" or "OFF")
     BtnGraphics.TextColor3 = Features.RTXGraphics and Color3.fromRGB(0, 255, 127) or Color3.fromRGB(200, 200, 200)
 
     if Features.RTXGraphics then
-        -- حفظ الإعدادات الأصلية للرجوع لها
-        OriginalLighting.Technology = Lighting.Technology
+        -- حفظ الإعدادات الأصلية
         OriginalLighting.GlobalShadows = Lighting.GlobalShadows
         OriginalLighting.Brightness = Lighting.Brightness
         OriginalLighting.Ambient = Lighting.Ambient
         OriginalLighting.OutdoorAmbient = Lighting.OutdoorAmbient
         OriginalLighting.ExposureCompensation = Lighting.ExposureCompensation
+        
+        OriginalWater.Color = workspace.Terrain.WaterColor
+        OriginalWater.Reflectance = workspace.Terrain.WaterReflectance
+        OriginalWater.WaveSize = workspace.Terrain.WaterWaveSize
+        OriginalWater.WaveSpeed = workspace.Terrain.WaterWaveSpeed
+        OriginalWater.Transparency = workspace.Terrain.WaterTransparency
 
-        -- تفعيل الجرافيكس الأسطوري
         pcall(function()
+            -- إضاءة متوازنة وممتازة لا تعمي العين
             Lighting.GlobalShadows = true
-            Lighting.Brightness = 3.5
-            Lighting.ClockTime = 14.5 -- توقيت شمس ساطعة وفخمة
-            Lighting.Ambient = Color3.fromRGB(150, 150, 150)
-            Lighting.OutdoorAmbient = Color3.fromRGB(130, 130, 130)
-            Lighting.ExposureCompensation = 0.25
+            Lighting.Brightness = 2.5
+            Lighting.ClockTime = 14 -- وقت الغروب الذهبي
+            Lighting.Ambient = Color3.fromRGB(100, 100, 100)
+            Lighting.OutdoorAmbient = Color3.fromRGB(100, 100, 100)
+            Lighting.ExposureCompensation = -0.15 -- لتقليل السطوع المزعج وإبراز التفاصيل
             Lighting.EnvironmentDiffuseScale = 1
             Lighting.EnvironmentSpecularScale = 1
             
-            -- إضافة تأثير توهج الأشياء (Bloom)
+            -- تفعيل خامات روبلوكس العالية الدقة (يحافظ على السكنات ويعطي تفاصيل للماب)
+            MaterialService.Use2022Materials = true
+
+            -- واقعية المياه
+            workspace.Terrain.WaterColor = Color3.fromRGB(10, 40, 50)
+            workspace.Terrain.WaterReflectance = 1
+            workspace.Terrain.WaterWaveSize = 0.15
+            workspace.Terrain.WaterWaveSpeed = 12
+            workspace.Terrain.WaterTransparency = 0.9
+            
+            -- Bloom خفيف جدا للواقعية
             if not Lighting:FindFirstChild("ZokoBloom") then
                 local Bloom = Instance.new("BloomEffect", Lighting)
                 Bloom.Name = "ZokoBloom"
-                Bloom.Intensity = 0.6
-                Bloom.Size = 25
-                Bloom.Threshold = 1.5
+                Bloom.Intensity = 0.15
+                Bloom.Size = 20
+                Bloom.Threshold = 2
             end
 
-            -- أشعة الشمس الواقعية (SunRays)
+            -- أشعة شمس هادئة
             if not Lighting:FindFirstChild("ZokoSunRays") then
                 local SunRays = Instance.new("SunRaysEffect", Lighting)
                 SunRays.Name = "ZokoSunRays"
-                SunRays.Intensity = 0.08
-                SunRays.Spread = 0.8
+                SunRays.Intensity = 0.05
+                SunRays.Spread = 0.9
             end
 
-            -- تصحيح الألوان وجعلها عصرية (ColorCorrection)
+            -- تحسين الألوان دون تدمير لون البشرة
             if not Lighting:FindFirstChild("ZokoColor") then
                 local CC = Instance.new("ColorCorrectionEffect", Lighting)
                 CC.Name = "ZokoColor"
-                CC.Brightness = 0.05
-                CC.Contrast = 0.25
-                CC.Saturation = 0.35
-                CC.TintColor = Color3.fromRGB(255, 245, 235)
+                CC.Brightness = 0.02
+                CC.Contrast = 0.15
+                CC.Saturation = 0.2
+                CC.TintColor = Color3.fromRGB(255, 250, 245)
             end
+        end)
 
-            -- تنعيم كامل وحواف (Blur) للتركيز
-            if not Lighting:FindFirstChild("ZokoDepth") then
-                local Depth = Instance.new("DepthOfFieldEffect", Lighting)
-                Depth.Name = "ZokoDepth"
-                Depth.FarIntensity = 0.1
-                Depth.FocusDistance = 50
-                Depth.InFocusRadius = 50
-                Depth.NearIntensity = 0
-            end
-
-            -- جعل الخامات تلمع (Materials Override)
-            for _, obj in pairs(workspace:GetDescendants()) do
-                if obj:IsA("BasePart") and obj.Material == Enum.Material.Plastic then
-                    obj.Material = Enum.Material.SmoothPlastic
-                    obj.Reflectance = 0.2 -- جعل الأسطح تعكس مثل الزجاج أو السيارات
+        -- تفعيل أنميشنات وحركة الكاميرا (AAA Feel) وتأثيرات النار
+        local tick_time = 0
+        local cam = workspace.CurrentCamera
+        
+        -- تعزيز الانفجارات والنار بمجرد ظهورها
+        ParticleConnection = workspace.DescendantAdded:Connect(function(obj)
+            if Features.RTXGraphics then
+                if obj:IsA("Explosion") then
+                    obj.BlastPressure = obj.BlastPressure * 1.5
+                    obj.ExplosionType = Enum.ExplosionType.Craters
+                elseif obj:IsA("Fire") then
+                    obj.Size = obj.Size * 1.5
+                    obj.Heat = obj.Heat * 1.2
+                    if obj.Parent and not obj.Parent:FindFirstChild("ZokoFireLight") then
+                        local light = Instance.new("PointLight", obj.Parent)
+                        light.Name = "ZokoFireLight"
+                        light.Color = obj.Color
+                        light.Range = obj.Size * 2.5
+                        light.Brightness = 2.5
+                    end
                 end
             end
         end)
-        Notify("AAA Graphics", "تم تفعيل جرافيكس فورزا الواقعي! كل شيء الآن يلمع وينبض بالحياة.", Color3.fromRGB(0, 255, 127))
+
+        AAALoop = RunService.RenderStepped:Connect(function(dt)
+            local char = Player.Character
+            if not char then return end
+            local hum = char:FindFirstChild("Humanoid")
+            local hrp = char:FindFirstChild("HumanoidRootPart")
+            if not hum or not hrp then return end
+
+            local speed = hrp.Velocity.Magnitude
+
+            -- نظام الـ FOV الديناميكي (يتسع عند السرعة العالية مثل سيارات فورزا)
+            local targetFOV = 70 + math.clamp(speed / 4, 0, 35)
+            cam.FieldOfView = cam.FieldOfView + (targetFOV - cam.FieldOfView) * 0.1
+
+            -- نظام اهتزاز الكاميرا والمشي الواقعي (Camera Bobbing)
+            if speed > 1 and hum.FloorMaterial ~= Enum.Material.Air and hum.SeatPart == nil then
+                tick_time = tick_time + dt * speed * 0.6
+                local bobbingX = math.cos(tick_time) * 0.12
+                local bobbingY = math.abs(math.sin(tick_time)) * 0.12
+                -- دمج الاهتزاز مع الكاميرا بدون تخريب التصويب
+                hum.CameraOffset = hum.CameraOffset:Lerp(Vector3.new(bobbingX, bobbingY, 0), 0.2)
+            else
+                hum.CameraOffset = hum.CameraOffset:Lerp(Vector3.new(0, 0, 0), 0.1)
+            end
+        end)
+
+        Notify("AAA Realism", "تم تفعيل جرافيكس وحركة فورزا! ستلاحظ اهتزازات واقعية، مياه حقيقية، وتحسن في الانفجارات.", Color3.fromRGB(0, 255, 127))
     else
-        -- إيقاف الجرافيكس
         pcall(function()
             Lighting.GlobalShadows = OriginalLighting.GlobalShadows or true
             Lighting.Brightness = OriginalLighting.Brightness or 1
@@ -1582,12 +1633,27 @@ BtnGraphics.MouseButton1Click:Connect(function()
             Lighting.OutdoorAmbient = OriginalLighting.OutdoorAmbient or Color3.fromRGB(128, 128, 128)
             Lighting.ExposureCompensation = OriginalLighting.ExposureCompensation or 0
             
+            MaterialService.Use2022Materials = false
+
+            workspace.Terrain.WaterColor = OriginalWater.Color or Color3.fromRGB(12, 84, 91)
+            workspace.Terrain.WaterReflectance = OriginalWater.Reflectance or 1
+            workspace.Terrain.WaterWaveSize = OriginalWater.WaveSize or 0.15
+            workspace.Terrain.WaterWaveSpeed = OriginalWater.WaveSpeed or 10
+            workspace.Terrain.WaterTransparency = OriginalWater.Transparency or 0.3
+
             if Lighting:FindFirstChild("ZokoBloom") then Lighting.ZokoBloom:Destroy() end
             if Lighting:FindFirstChild("ZokoSunRays") then Lighting.ZokoSunRays:Destroy() end
             if Lighting:FindFirstChild("ZokoColor") then Lighting.ZokoColor:Destroy() end
-            if Lighting:FindFirstChild("ZokoDepth") then Lighting.ZokoDepth:Destroy() end
+            
+            if AAALoop then AAALoop:Disconnect() end
+            if ParticleConnection then ParticleConnection:Disconnect() end
+            
+            workspace.CurrentCamera.FieldOfView = 70
+            if Player.Character and Player.Character:FindFirstChild("Humanoid") then
+                Player.Character.Humanoid.CameraOffset = Vector3.new(0,0,0)
+            end
         end)
-        Notify("Graphics", "تم إرجاع الجرافيكس الأصلي للعبه.", Color3.fromRGB(200, 200, 200))
+        Notify("Graphics", "تم إرجاع الجرافيكس والحركة الكلاسيكية.", Color3.fromRGB(200, 200, 200))
     end
 end)
 
@@ -1814,12 +1880,14 @@ RestartBtn.MouseButton1Click:Connect(function()
     if ESPLoop then ESPLoop:Disconnect() end
     if AimbotLoop then AimbotLoop:Disconnect() end
     if SuperHitLoop then SuperHitLoop:Disconnect() end
+    if AAALoop then AAALoop:Disconnect() end
+    if ParticleConnection then ParticleConnection:Disconnect() end
     if bg then bg:Destroy() end
     if bv then bv:Destroy() end
     
     workspace.CurrentCamera.CameraSubject = Player.Character:WaitForChild("Humanoid")
     ScreenGui:Destroy()
-    -- يعيد تشغيل النسخة الأصلية لديك
+    
     pcall(function() loadstring(game:HttpGet("https://raw.githubusercontent.com/Ray2133231/Zoko2/main/main.lua"))() end)
 end)
 
