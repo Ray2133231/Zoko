@@ -13,15 +13,9 @@ if _G.ZokoUI then pcall(function() _G.ZokoUI:Destroy() end) end
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "Zoko_UI"
+ScreenGui.Parent = Player:WaitForChild("PlayerGui")
 ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
-local function GetSafeUI_Parent()
-    local success, core = pcall(function() return game:GetService("CoreGui") end)
-    if success and core then return core end
-    return Player:WaitForChild("PlayerGui")
-end
-ScreenGui.Parent = GetSafeUI_Parent()
 _G.ZokoUI = ScreenGui
 
 -----------------------------------
@@ -77,29 +71,24 @@ CleanupWands()
 local MainFrame = Instance.new("Frame")
 MainFrame.Size = UDim2.new(0, 0, 0, 0)
 MainFrame.Position = UDim2.new(0.5, -135, 0.5, -200)
-MainFrame.BackgroundColor3 = Color3.fromRGB(15, 5, 5) 
-MainFrame.BackgroundTransparency = 0.35
-MainFrame.Visible = false
+MainFrame.BackgroundColor3 = Color3.fromRGB(20, 5, 5) 
+MainFrame.BackgroundTransparency = 0.45 
+MainFrame.Visible = true
 MainFrame.ClipsDescendants = true
 MainFrame.Parent = ScreenGui
 
-Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 14)
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 12)
 local Stroke = Instance.new("UIStroke", MainFrame)
-Stroke.Color = Color3.fromRGB(255, 20, 20) 
-Stroke.Thickness = 2
-Stroke.Transparency = 0.2
-
-local BlurEffect = Instance.new("BlurEffect", Lighting)
-BlurEffect.Size = 0
-BlurEffect.Name = "ZokoUIBlur"
+Stroke.Color = Color3.fromRGB(255, 30, 30) 
+Stroke.Thickness = 1.5
 
 local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1, 0, 0, 45)
+Title.Size = UDim2.new(1, 0, 0, 40)
 Title.BackgroundTransparency = 1
-Title.Text = "ZOKO ENGINE V2"
+Title.Text = "Zoko Trainer V1.5"
 Title.TextColor3 = Color3.fromRGB(255, 30, 30)
 Title.Font = Enum.Font.GothamBlack
-Title.TextSize = 24
+Title.TextSize = 22
 Title.Parent = MainFrame
 
 local function MakeDraggable(gui)
@@ -130,11 +119,11 @@ MakeDraggable(MainFrame)
 
 local ScrollFrame = Instance.new("ScrollingFrame")
 ScrollFrame.Size = UDim2.new(1, 0, 1, -110) 
-ScrollFrame.Position = UDim2.new(0, 0, 0, 50)
+ScrollFrame.Position = UDim2.new(0, 0, 0, 45)
 ScrollFrame.BackgroundTransparency = 1
-ScrollFrame.ScrollBarThickness = 3
+ScrollFrame.ScrollBarThickness = 4
 ScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(255, 30, 30)
-ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 1400)
+ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 1200)
 ScrollFrame.Parent = MainFrame
 
 local ListLayout = Instance.new("UIListLayout")
@@ -145,14 +134,14 @@ ListLayout.Padding = UDim.new(0, 8)
 local function Notify(titleText, descText, color)
     local useColor = color or Color3.fromRGB(255, 30, 30)
     local NotifFrame = Instance.new("Frame")
-    NotifFrame.Size = UDim2.new(0, 260, 0, 75)
+    NotifFrame.Size = UDim2.new(0, 250, 0, 70)
     NotifFrame.Position = UDim2.new(1, 10, 0.8, 0)
-    NotifFrame.BackgroundColor3 = Color3.fromRGB(15, 5, 5)
-    NotifFrame.BackgroundTransparency = 0.3
+    NotifFrame.BackgroundColor3 = Color3.fromRGB(20, 5, 5)
+    NotifFrame.BackgroundTransparency = 0.4
     NotifFrame.ZIndex = 200
     NotifFrame.Parent = ScreenGui
     
-    Instance.new("UICorner", NotifFrame).CornerRadius = UDim.new(0, 12)
+    Instance.new("UICorner", NotifFrame).CornerRadius = UDim.new(0, 10)
     local NStroke = Instance.new("UIStroke", NotifFrame)
     NStroke.Color = useColor
     NStroke.Thickness = 1.5
@@ -164,29 +153,32 @@ local function Notify(titleText, descText, color)
     NTitle.Text = titleText
     NTitle.TextColor3 = useColor
     NTitle.Font = Enum.Font.GothamBold
-    NTitle.TextSize = 17
+    NTitle.TextSize = 16
     NTitle.ZIndex = 201
     NTitle.TextXAlignment = Enum.TextXAlignment.Left
 
     local NDesc = Instance.new("TextLabel", NotifFrame)
-    NDesc.Size = UDim2.new(1, -10, 0, 35)
+    NDesc.Size = UDim2.new(1, -10, 0, 30)
     NDesc.Position = UDim2.new(0, 10, 0, 30)
     NDesc.BackgroundTransparency = 1
     NDesc.Text = descText
-    NDesc.TextColor3 = Color3.fromRGB(220, 220, 220)
+    NDesc.TextColor3 = Color3.fromRGB(200, 200, 200)
     NDesc.Font = Enum.Font.GothamMedium
     NDesc.TextSize = 13
     NDesc.ZIndex = 201
     NDesc.TextXAlignment = Enum.TextXAlignment.Left
     NDesc.TextWrapped = true
 
-    NotifFrame:TweenPosition(UDim2.new(1, -270, 0.8, 0), "Out", "Back", 0.5, true)
-    task.wait(4)
+    NotifFrame:TweenPosition(UDim2.new(1, -260, 0.8, 0), "Out", "Back", 0.5, true)
+    task.wait(3.5)
     NotifFrame:TweenPosition(UDim2.new(1, 10, 0.8, 0), "In", "Back", 0.5, true)
     task.wait(0.5)
     NotifFrame:Destroy()
 end
 
+-----------------------------------
+-- واجهة الانتقالات الزجاجية ---
+-----------------------------------
 local TpFrame = Instance.new("Frame")
 TpFrame.Size = UDim2.new(0, 250, 0, 350)
 TpFrame.Position = UDim2.new(0.5, -300, 0.5, -150)
@@ -231,6 +223,7 @@ TpScroll.BackgroundTransparency = 1
 TpScroll.ScrollBarThickness = 3
 TpScroll.ScrollBarImageColor3 = Color3.fromRGB(255, 30, 30)
 TpScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+
 local TpLayout = Instance.new("UIListLayout", TpScroll)
 TpLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 TpLayout.Padding = UDim.new(0, 5)
@@ -278,6 +271,7 @@ TxtOrderMode.Font = Enum.Font.GothamBold
 TxtOrderMode.TextScaled = true
 TxtOrderMode.Visible = false
 
+-- مودل إدخال/تعديل الاسم زجاجي
 local ModalFrame = Instance.new("Frame", ScreenGui)
 ModalFrame.Size = UDim2.new(0, 220, 0, 120)
 ModalFrame.Position = UDim2.new(0.5, -110, 0.5, -60)
@@ -310,6 +304,8 @@ BtnSaveModal.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
 BtnSaveModal.Text = "Save"
 BtnSaveModal.TextColor3 = Color3.fromRGB(255, 255, 255)
 BtnSaveModal.Font = Enum.Font.GothamBold
+BtnSaveModal.TextSize = 14
+BtnSaveModal.TextScaled = true
 BtnSaveModal.ZIndex = 51
 Instance.new("UICorner", BtnSaveModal).CornerRadius = UDim.new(0, 6)
 
@@ -320,6 +316,8 @@ BtnCancelModal.BackgroundColor3 = Color3.fromRGB(100, 20, 20)
 BtnCancelModal.Text = "Cancel"
 BtnCancelModal.TextColor3 = Color3.fromRGB(255, 255, 255)
 BtnCancelModal.Font = Enum.Font.GothamBold
+BtnCancelModal.TextSize = 14
+BtnCancelModal.TextScaled = true
 BtnCancelModal.ZIndex = 51
 Instance.new("UICorner", BtnCancelModal).CornerRadius = UDim.new(0, 6)
 
@@ -373,7 +371,13 @@ local SelectedCpName = ""
 local RenameMode = false
 local IsReorderMode = false
 local TempCheckpoints = {}
-local DragInfo = { IsDragging = false, Ghost = nil, Placeholder = nil, OffsetY = 0 }
+
+local DragInfo = {
+    IsDragging = false,
+    Ghost = nil,
+    Placeholder = nil,
+    OffsetY = 0
+}
 
 local function RefreshTpList()
     for _, v in pairs(TpScroll:GetChildren()) do
@@ -473,6 +477,7 @@ local function CancelEditMode()
         BtnSaveOrder.Visible = false
         BtnCancelOrder.Visible = false
         TxtOrderMode.Visible = false
+        
         TempCheckpoints = {}
         RefreshTpList()
     end
@@ -563,12 +568,14 @@ end)
 BtnSaveOrder.MouseButton1Click:Connect(function()
     SavedCheckpoints[CurrentPlaceId] = TempCheckpoints
     SaveCheckpoints()
+    
     IsReorderMode = false
     BtnToggleReorder.ImageColor3 = Color3.fromRGB(200, 200, 200)
     BtnAddNewTp.Visible = true
     BtnSaveOrder.Visible = false
     BtnCancelOrder.Visible = false
     TxtOrderMode.Visible = false
+    
     Notify("Saved", "New order saved!", Color3.fromRGB(0, 255, 127))
     RefreshTpList()
 end)
@@ -601,7 +608,9 @@ BtnAddNewTp.MouseButton1Click:Connect(function()
     ModalFrame.Visible = true
 end)
 
-BtnCancelModal.MouseButton1Click:Connect(function() ModalFrame.Visible = false end)
+BtnCancelModal.MouseButton1Click:Connect(function()
+    ModalFrame.Visible = false
+end)
 
 BtnSaveModal.MouseButton1Click:Connect(function()
     local name = ModalInput.Text
@@ -613,7 +622,9 @@ BtnSaveModal.MouseButton1Click:Connect(function()
                     X = data.X, Y = data.Y, Z = data.Z, 
                     AutoJoin = data.AutoJoin, Order = data.Order
                 }
-                if name ~= SelectedCpName then SavedCheckpoints[CurrentPlaceId][SelectedCpName] = nil end
+                if name ~= SelectedCpName then
+                    SavedCheckpoints[CurrentPlaceId][SelectedCpName] = nil
+                end
                 Notify("Rename", "Renamed to: " .. name, Color3.fromRGB(0, 255, 127))
             end
         elseif Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
@@ -670,7 +681,7 @@ BtnCtxAutoJoin.MouseButton1Click:Connect(function()
 end)
 
 -----------------------------------
--- أكواد التحكم باللاعبين --
+-- باقي الأكواد والميزات --
 -----------------------------------
 local SelectedTargets = {} 
 local TargetCards = {}     
@@ -1029,8 +1040,7 @@ local Features = {
     Fly = false, FlyNoclip = false, GodMode = false, InfJump = false, Noclip = false, 
     InstantPrompt = false, SuperHit = false, AntiAFK = true, ControlWand = false, ESP = false,
     CustomSpeed = false, WalkSpeed = 100, CarSpeed = 100, FlySpeed = 100, CarFlySpeed = 100, 
-    CustomJump = false, JumpValue = 100, Aimbot = false, AimbotFOV = 150, RTXGraphics = false,
-    AutoShoot = false
+    CustomJump = false, JumpValue = 100, Aimbot = false, AimbotFOV = 150, RTXGraphics = false
 }
 local CurrentSpeedState = "Walk"
 
@@ -1082,12 +1092,15 @@ end
 local BtnOpenTeleports = CreateButton("Checkpoints", ScrollFrame)
 BtnOpenTeleports.MouseButton1Click:Connect(function()
     TpFrame.Visible = not TpFrame.Visible
-    if TpFrame.Visible then CancelEditMode(); RefreshTpList() else CancelEditMode() end
+    if TpFrame.Visible then
+        CancelEditMode()
+        RefreshTpList()
+    else
+        CancelEditMode()
+    end
 end)
 
-local BtnGraphics = CreateButton("Zoko DLSS-5 Engine : OFF", ScrollFrame)
-local BtnAimbot = CreateButton("God Aimbot: OFF", ScrollFrame)
-local BtnAutoShoot = CreateButton("Auto-Kill (Zero Delay): OFF", ScrollFrame)
+local BtnAimbot = CreateButton("Aimbot A: OFF", ScrollFrame)
 local BtnWand = CreateButton("Control Wand : OFF", ScrollFrame)
 local BtnFly = CreateButton("Fly : OFF", ScrollFrame)
 local BtnFlyNoclip = CreateButton("Fly Noclip : OFF", ScrollFrame)
@@ -1098,6 +1111,7 @@ local BtnRevive = CreateButton("Revive", ScrollFrame)
 local BtnNoclip = CreateButton("Noclip: OFF", ScrollFrame)
 local BtnInstant = CreateButton("Instant Interact: OFF", ScrollFrame)
 local BtnSuperHit = CreateButton("Super Hero Hit : OFF", ScrollFrame)
+local BtnGraphics = CreateButton("AAA RTX Graphics : OFF", ScrollFrame)
 local BtnInfJump = CreateButton("Infinite Jump: OFF", ScrollFrame)
 local BtnAntiAFK = CreateButton("Anti-AFK: ON", ScrollFrame)
 BtnAntiAFK.TextColor3 = Color3.fromRGB(0, 255, 127)
@@ -1108,16 +1122,29 @@ local BtnJump, BoxJump = CreateInputRow("Jump Power: OFF", 100, ScrollFrame)
 local function UpdateSpeedDisplay()
     local prefix = ""
     local val = 50
-    if CurrentSpeedState == "Walk" then prefix = "Walk Speed"; val = Features.WalkSpeed
-    elseif CurrentSpeedState == "Car" then prefix = "Car Speed"; val = Features.CarSpeed
-    elseif CurrentSpeedState == "Fly" then prefix = "Fly Speed"; val = Features.FlySpeed
-    elseif CurrentSpeedState == "CarFly" then prefix = "Car Fly Speed"; val = Features.CarFlySpeed end
+    if CurrentSpeedState == "Walk" then
+        prefix = "Walk Speed"
+        val = Features.WalkSpeed
+    elseif CurrentSpeedState == "Car" then
+        prefix = "Car Speed"
+        val = Features.CarSpeed
+    elseif CurrentSpeedState == "Fly" then
+        prefix = "Fly Speed"
+        val = Features.FlySpeed
+    elseif CurrentSpeedState == "CarFly" then
+        prefix = "Car Fly Speed"
+        val = Features.CarFlySpeed
+    end
     BtnSpeed.Text = prefix .. (Features.CustomSpeed and ": ON" or ": OFF")
     BoxSpeed.Text = tostring(val)
 end
 
-local FOVGui = Instance.new("ScreenGui", ScreenGui)
+-----------------------------------
+-- Aimbot A System
+-----------------------------------
+local FOVGui = Instance.new("ScreenGui")
 FOVGui.Name = "Zoko_AimbotFOV"
+FOVGui.Parent = ScreenGui
 local FOVFrame = Instance.new("Frame", FOVGui)
 FOVFrame.BackgroundTransparency = 1
 FOVFrame.Size = UDim2.new(0, Features.AimbotFOV * 2, 0, Features.AimbotFOV * 2)
@@ -1125,8 +1152,8 @@ FOVFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 FOVFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 Instance.new("UICorner", FOVFrame).CornerRadius = UDim.new(1, 0)
 local FOVStroke = Instance.new("UIStroke", FOVFrame)
-FOVStroke.Color = Color3.fromRGB(255, 10, 10)
-FOVStroke.Thickness = 2
+FOVStroke.Color = Color3.fromRGB(255, 30, 30)
+FOVStroke.Thickness = 1.5
 FOVFrame.Visible = false
 
 local function IsVisible(targetPart)
@@ -1136,8 +1163,11 @@ local function IsVisible(targetPart)
     rayParams.FilterDescendantsInstances = {Player.Character}
     rayParams.FilterType = Enum.RaycastFilterType.Exclude
     rayParams.IgnoreWater = true
+
     local result = workspace:Raycast(origin, direction, rayParams)
-    if not result or result.Instance:IsDescendantOf(targetPart.Parent) then return true end
+    if not result or result.Instance:IsDescendantOf(targetPart.Parent) then
+        return true
+    end
     return false
 end
 
@@ -1148,7 +1178,9 @@ local function GetClosestToCenter()
     
     for _, v in pairs(game.Players:GetPlayers()) do
         local isEnemy = true
-        if Player.Team and v.Team and Player.Team == v.Team then isEnemy = false end
+        if Player.Team and v.Team and Player.Team == v.Team then
+            isEnemy = false
+        end
 
         if v ~= Player and isEnemy and v.Character and v.Character:FindFirstChild("Head") and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health > 0 then
             local pos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(v.Character.Head.Position)
@@ -1168,37 +1200,28 @@ end
 
 BtnAimbot.MouseButton1Click:Connect(function()
     Features.Aimbot = not Features.Aimbot
-    BtnAimbot.Text = "God Aimbot: " .. (Features.Aimbot and "ON" or "OFF")
+    BtnAimbot.Text = "Aimbot A: " .. (Features.Aimbot and "ON" or "OFF")
     BtnAimbot.TextColor3 = Features.Aimbot and Color3.fromRGB(0, 255, 127) or Color3.fromRGB(200, 200, 200)
     FOVFrame.Visible = Features.Aimbot
 end)
 
-BtnAutoShoot.MouseButton1Click:Connect(function()
-    Features.AutoShoot = not Features.AutoShoot
-    BtnAutoShoot.Text = "Auto-Kill (Zero Delay): " .. (Features.AutoShoot and "ON" or "OFF")
-    BtnAutoShoot.TextColor3 = Features.AutoShoot and Color3.fromRGB(0, 255, 127) or Color3.fromRGB(200, 200, 200)
-    if Features.AutoShoot then
-        Notify("Auto-Kill", "تم تفعيل الإطلاق التلقائي! مجرد أن يلقط الخصم سيتم تدميره.", Color3.fromRGB(255, 50, 50))
-    end
-end)
-
+local clicking = false
 local AimbotLoop = RunService.RenderStepped:Connect(function()
     if Features.Aimbot then
         local targetHead = GetClosestToCenter()
         if targetHead then
             local camCFrame = workspace.CurrentCamera.CFrame
-            workspace.CurrentCamera.CFrame = CFrame.new(camCFrame.Position, targetHead.Position)
+            local newCFrame = CFrame.new(camCFrame.Position, targetHead.Position)
+            workspace.CurrentCamera.CFrame = camCFrame:Lerp(newCFrame, 0.25)
             
-            if Features.AutoShoot then
+            if not clicking then
+                clicking = true
                 pcall(function()
-                    if mouse1press then 
-                        mouse1press(); task.wait(0.01); mouse1release() 
-                    else 
-                        VirtualUser:ClickButton1(Vector2.new()) 
-                    end
-                    local tool = Player.Character:FindFirstChildOfClass("Tool")
-                    if tool then tool:Activate() end
+                    if mouse1press then mouse1press() task.wait(0.05) mouse1release()
+                    else VirtualUser:ClickButton1(Vector2.new()) end
                 end)
+                task.wait(0.1)
+                clicking = false
             end
         end
         
@@ -1208,148 +1231,11 @@ local AimbotLoop = RunService.RenderStepped:Connect(function()
                 if v:IsA("ValueBase") and type(v.Value) == "number" then
                     local nameLow = string.lower(v.Name)
                     if string.find(nameLow, "ammo") or string.find(nameLow, "clip") or string.find(nameLow, "mag") then
-                        v.Value = 9999
+                        v.Value = 999
                     end
                 end
             end
         end
-    end
-end)
-
-local DLSSLoop
-
--- كود الجرافيكس الجديد الصاروخي مع الحفاظ على الفخامة الواقعية
-BtnGraphics.MouseButton1Click:Connect(function()
-    Features.RTXGraphics = not Features.RTXGraphics
-    BtnGraphics.Text = "Zoko DLSS-5 Engine : " .. (Features.RTXGraphics and "ON" or "OFF")
-    BtnGraphics.TextColor3 = Features.RTXGraphics and Color3.fromRGB(0, 255, 127) or Color3.fromRGB(200, 200, 200)
-
-    if Features.RTXGraphics then
-        Notify("DLSS-5 Init", "يتم تفعيل الجرافيكس الفائق...", Color3.fromRGB(255, 100, 0))
-        
-        -- استخدمنا task.spawn عشان نخلي اللعبة تحمل كل شيء في الخلفية بدون ما تعلق الشاشة ولا جزء من الثانية
-        task.spawn(function()
-            pcall(function()
-                -- تفعيل العشب والخامات الواقعية 2022
-                workspace.Terrain.Decoration = true 
-                MaterialService.Use2022Materials = true 
-                
-                -- تفعيل الموية الواقعية
-                workspace.Terrain.WaterColor = Color3.fromRGB(8, 30, 45)
-                workspace.Terrain.WaterReflectance = 1
-                workspace.Terrain.WaterWaveSize = 0.2
-                workspace.Terrain.WaterWaveSpeed = 15
-                workspace.Terrain.WaterTransparency = 0.85
-                
-                -- الإضاءة والظلال
-                Lighting.GlobalShadows = true
-                Lighting.Brightness = 3 
-                Lighting.ShadowSoftness = 0.2
-                Lighting.EnvironmentDiffuseScale = 1
-                Lighting.EnvironmentSpecularScale = 1
-                Lighting.ExposureCompensation = -0.1
-                
-                -- فلاتر الإضاءة السينمائية
-                if not Lighting:FindFirstChild("ZokoBloom") then
-                    local bloom = Instance.new("BloomEffect", Lighting)
-                    bloom.Name = "ZokoBloom"
-                    bloom.Intensity = 0.15
-                    bloom.Size = 20
-                    bloom.Threshold = 2
-                end
-                if not Lighting:FindFirstChild("ZokoSun") then
-                    local sun = Instance.new("SunRaysEffect", Lighting)
-                    sun.Name = "ZokoSun"
-                    sun.Intensity = 0.05
-                    sun.Spread = 0.5
-                end
-                if not Lighting:FindFirstChild("ZokoCC") then
-                    local cc = Instance.new("ColorCorrectionEffect", Lighting)
-                    cc.Name = "ZokoCC"
-                    cc.Brightness = 0.02
-                    cc.Contrast = 0.15
-                    cc.Saturation = 0.2
-                    cc.TintColor = Color3.fromRGB(255, 250, 245)
-                end
-            end)
-            
-            -- إضافة تأثير نار واقعي وإضاءة تطلع من شخصيتك
-            local char = Player.Character
-            if char and char:FindFirstChild("HumanoidRootPart") then
-                if not char.HumanoidRootPart:FindFirstChild("ZokoAAA_Fire") then
-                    local fire = Instance.new("Fire")
-                    fire.Name = "ZokoAAA_Fire"
-                    fire.Size = 4
-                    fire.Heat = 9
-                    fire.Color = Color3.fromRGB(255, 100, 0)
-                    fire.SecondaryColor = Color3.fromRGB(255, 0, 0)
-                    fire.Parent = char.HumanoidRootPart
-                    
-                    local light = Instance.new("PointLight")
-                    light.Name = "ZokoAAA_Light"
-                    light.Color = Color3.fromRGB(255, 150, 50)
-                    light.Range = 10
-                    light.Brightness = 2
-                    light.Parent = char.HumanoidRootPart
-                end
-            end
-            
-            Notify("AAA Engine Enabled", "تم تفعيل العشب والجرافيكس فوراً وبدون أي تعليق!", Color3.fromRGB(0, 255, 127))
-        end)
-        
-        local tick_time = 0
-        local cam = workspace.CurrentCamera
-        
-        if DLSSLoop then DLSSLoop:Disconnect() end
-        DLSSLoop = RunService.RenderStepped:Connect(function(dt)
-            local char = Player.Character
-            if not char then return end
-            local hum = char:FindFirstChild("Humanoid")
-            local hrp = char:FindFirstChild("HumanoidRootPart")
-            if not hum or not hrp then return end
-
-            local speed = hrp.Velocity.Magnitude
-            local targetFOV = 70 + math.clamp(speed / 4, 0, 30)
-            cam.FieldOfView = cam.FieldOfView + (targetFOV - cam.FieldOfView) * 0.1
-
-            if speed > 1 and hum.FloorMaterial ~= Enum.Material.Air and hum.SeatPart == nil then
-                tick_time = tick_time + dt * speed * 0.5
-                -- تحسين حركة الكاميرا والأنميشن بشكل واقعي ومريح للعين
-                local bobbingX = math.cos(tick_time) * 0.1
-                local bobbingY = math.abs(math.sin(tick_time)) * 0.1
-                hum.CameraOffset = hum.CameraOffset:Lerp(Vector3.new(bobbingX, bobbingY, 0), 0.2)
-            else
-                hum.CameraOffset = hum.CameraOffset:Lerp(Vector3.new(0, 0, 0), 0.1)
-            end
-            BlurEffect.Size = math.clamp(speed / 25, 0, 2)
-        end)
-    else
-        -- إرجاع اللعبة لوضعها الطبيعي 
-        task.spawn(function()
-            pcall(function()
-                workspace.Terrain.Decoration = false 
-                MaterialService.Use2022Materials = false
-                
-                if Lighting:FindFirstChild("ZokoBloom") then Lighting.ZokoBloom:Destroy() end
-                if Lighting:FindFirstChild("ZokoSun") then Lighting.ZokoSun:Destroy() end
-                if Lighting:FindFirstChild("ZokoCC") then Lighting.ZokoCC:Destroy() end
-                
-                if DLSSLoop then DLSSLoop:Disconnect() end
-                workspace.CurrentCamera.FieldOfView = 70
-                if Player.Character and Player.Character:FindFirstChild("Humanoid") then
-                    Player.Character.Humanoid.CameraOffset = Vector3.new(0,0,0)
-                end
-                BlurEffect.Size = 0
-                
-                -- إزالة النار والإضاءة من الشخصية
-                local char = Player.Character
-                if char and char:FindFirstChild("HumanoidRootPart") then
-                    if char.HumanoidRootPart:FindFirstChild("ZokoAAA_Fire") then char.HumanoidRootPart.ZokoAAA_Fire:Destroy() end
-                    if char.HumanoidRootPart:FindFirstChild("ZokoAAA_Light") then char.HumanoidRootPart.ZokoAAA_Light:Destroy() end
-                end
-            end)
-            Notify("Graphics", "تم إرجاع الجرافيكس إلى وضع روبلوكس العادي.", Color3.fromRGB(200, 200, 200))
-        end)
     end
 end)
 
@@ -1532,6 +1418,9 @@ BtnFlyNoclip.MouseButton1Click:Connect(function()
     end
 end)
 
+-----------------------------------
+-- إصلاح النوكليب (Noclip Fix) --
+-----------------------------------
 local NoclipLoop
 BtnNoclip.MouseButton1Click:Connect(function()
     Features.Noclip = not Features.Noclip
@@ -1542,10 +1431,14 @@ BtnNoclip.MouseButton1Click:Connect(function()
         NoclipLoop = RunService.Stepped:Connect(function()
             if Player.Character then
                 for _, part in pairs(Player.Character:GetDescendants()) do
-                    if part:IsA("BasePart") and part.CanCollide == true then part.CanCollide = false end
+                    if part:IsA("BasePart") and part.CanCollide == true then
+                        part.CanCollide = false
+                    end
                 end
                 local hum = Player.Character:FindFirstChild("Humanoid")
-                if hum then hum:ChangeState(11) end
+                if hum then
+                    hum:ChangeState(11) -- Enum.HumanoidStateType.RunningNoPhysics
+                end
             end
         end)
         Notify("Noclip", "تم التفعيل! يمكنك المرور عبر الجدران بحرية تامة.", Color3.fromRGB(0, 255, 127))
@@ -1560,6 +1453,9 @@ BtnNoclip.MouseButton1Click:Connect(function()
     end
 end)
 
+-----------------------------------
+-- نظام السوبر هت (Hitbox Expander/Wallbang) --
+-----------------------------------
 local SuperHitLoop
 BtnSuperHit.MouseButton1Click:Connect(function()
     Features.SuperHit = not Features.SuperHit
@@ -1571,8 +1467,8 @@ BtnSuperHit.MouseButton1Click:Connect(function()
             for _, v in pairs(game.Players:GetPlayers()) do
                 if v ~= Player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health > 0 then
                     local hrp = v.Character.HumanoidRootPart
-                    hrp.Size = Vector3.new(40, 40, 40)
-                    hrp.Transparency = 0.95
+                    hrp.Size = Vector3.new(40, 40, 40) -- توسيع الصندوق بشكل ضخم
+                    hrp.Transparency = 0.95 -- جعله شبه مخفي تماماً
                     hrp.CanCollide = false
                     if hrp:FindFirstChild("ZokoHitboxColor") == nil then
                         local color = Instance.new("BoxHandleAdornment", hrp)
@@ -1592,7 +1488,7 @@ BtnSuperHit.MouseButton1Click:Connect(function()
         if SuperHitLoop then SuperHitLoop:Disconnect() end
         for _, v in pairs(game.Players:GetPlayers()) do
             if v ~= Player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                v.Character.HumanoidRootPart.Size = Vector3.new(2, 2, 1)
+                v.Character.HumanoidRootPart.Size = Vector3.new(2, 2, 1) -- الحجم الطبيعي
                 v.Character.HumanoidRootPart.Transparency = 1
                 if v.Character.HumanoidRootPart:FindFirstChild("ZokoHitboxColor") then
                     v.Character.HumanoidRootPart.ZokoHitboxColor:Destroy()
@@ -1602,6 +1498,165 @@ BtnSuperHit.MouseButton1Click:Connect(function()
         Notify("Super Hit", "تم الإيقاف ورجوع الأحجام للطبيعة.", Color3.fromRGB(200, 200, 200))
     end
 end)
+
+-----------------------------------
+-- نظام الجرافيكس الأسطوري (AAA Graphics & Realism) --
+-----------------------------------
+local OriginalLighting = {}
+local OriginalWater = {}
+local AAALoop
+local ParticleConnection
+
+BtnGraphics.MouseButton1Click:Connect(function()
+    Features.RTXGraphics = not Features.RTXGraphics
+    BtnGraphics.Text = "AAA RTX Graphics : " .. (Features.RTXGraphics and "ON" or "OFF")
+    BtnGraphics.TextColor3 = Features.RTXGraphics and Color3.fromRGB(0, 255, 127) or Color3.fromRGB(200, 200, 200)
+
+    if Features.RTXGraphics then
+        -- حفظ الإعدادات الأصلية
+        OriginalLighting.GlobalShadows = Lighting.GlobalShadows
+        OriginalLighting.Brightness = Lighting.Brightness
+        OriginalLighting.Ambient = Lighting.Ambient
+        OriginalLighting.OutdoorAmbient = Lighting.OutdoorAmbient
+        OriginalLighting.ExposureCompensation = Lighting.ExposureCompensation
+        
+        OriginalWater.Color = workspace.Terrain.WaterColor
+        OriginalWater.Reflectance = workspace.Terrain.WaterReflectance
+        OriginalWater.WaveSize = workspace.Terrain.WaterWaveSize
+        OriginalWater.WaveSpeed = workspace.Terrain.WaterWaveSpeed
+        OriginalWater.Transparency = workspace.Terrain.WaterTransparency
+
+        pcall(function()
+            -- إضاءة متوازنة وممتازة لا تعمي العين
+            Lighting.GlobalShadows = true
+            Lighting.Brightness = 2.5
+            Lighting.ClockTime = 14 -- وقت الغروب الذهبي
+            Lighting.Ambient = Color3.fromRGB(100, 100, 100)
+            Lighting.OutdoorAmbient = Color3.fromRGB(100, 100, 100)
+            Lighting.ExposureCompensation = -0.15 -- لتقليل السطوع المزعج وإبراز التفاصيل
+            Lighting.EnvironmentDiffuseScale = 1
+            Lighting.EnvironmentSpecularScale = 1
+            
+            -- تفعيل خامات روبلوكس العالية الدقة (يحافظ على السكنات ويعطي تفاصيل للماب)
+            MaterialService.Use2022Materials = true
+
+            -- واقعية المياه
+            workspace.Terrain.WaterColor = Color3.fromRGB(10, 40, 50)
+            workspace.Terrain.WaterReflectance = 1
+            workspace.Terrain.WaterWaveSize = 0.15
+            workspace.Terrain.WaterWaveSpeed = 12
+            workspace.Terrain.WaterTransparency = 0.9
+            
+            -- Bloom خفيف جدا للواقعية
+            if not Lighting:FindFirstChild("ZokoBloom") then
+                local Bloom = Instance.new("BloomEffect", Lighting)
+                Bloom.Name = "ZokoBloom"
+                Bloom.Intensity = 0.15
+                Bloom.Size = 20
+                Bloom.Threshold = 2
+            end
+
+            -- أشعة شمس هادئة
+            if not Lighting:FindFirstChild("ZokoSunRays") then
+                local SunRays = Instance.new("SunRaysEffect", Lighting)
+                SunRays.Name = "ZokoSunRays"
+                SunRays.Intensity = 0.05
+                SunRays.Spread = 0.9
+            end
+
+            -- تحسين الألوان دون تدمير لون البشرة
+            if not Lighting:FindFirstChild("ZokoColor") then
+                local CC = Instance.new("ColorCorrectionEffect", Lighting)
+                CC.Name = "ZokoColor"
+                CC.Brightness = 0.02
+                CC.Contrast = 0.15
+                CC.Saturation = 0.2
+                CC.TintColor = Color3.fromRGB(255, 250, 245)
+            end
+        end)
+
+        -- تفعيل أنميشنات وحركة الكاميرا (AAA Feel) وتأثيرات النار
+        local tick_time = 0
+        local cam = workspace.CurrentCamera
+        
+        -- تعزيز الانفجارات والنار بمجرد ظهورها
+        ParticleConnection = workspace.DescendantAdded:Connect(function(obj)
+            if Features.RTXGraphics then
+                if obj:IsA("Explosion") then
+                    obj.BlastPressure = obj.BlastPressure * 1.5
+                    obj.ExplosionType = Enum.ExplosionType.Craters
+                elseif obj:IsA("Fire") then
+                    obj.Size = obj.Size * 1.5
+                    obj.Heat = obj.Heat * 1.2
+                    if obj.Parent and not obj.Parent:FindFirstChild("ZokoFireLight") then
+                        local light = Instance.new("PointLight", obj.Parent)
+                        light.Name = "ZokoFireLight"
+                        light.Color = obj.Color
+                        light.Range = obj.Size * 2.5
+                        light.Brightness = 2.5
+                    end
+                end
+            end
+        end)
+
+        AAALoop = RunService.RenderStepped:Connect(function(dt)
+            local char = Player.Character
+            if not char then return end
+            local hum = char:FindFirstChild("Humanoid")
+            local hrp = char:FindFirstChild("HumanoidRootPart")
+            if not hum or not hrp then return end
+
+            local speed = hrp.Velocity.Magnitude
+
+            -- نظام الـ FOV الديناميكي (يتسع عند السرعة العالية مثل سيارات فورزا)
+            local targetFOV = 70 + math.clamp(speed / 4, 0, 35)
+            cam.FieldOfView = cam.FieldOfView + (targetFOV - cam.FieldOfView) * 0.1
+
+            -- نظام اهتزاز الكاميرا والمشي الواقعي (Camera Bobbing)
+            if speed > 1 and hum.FloorMaterial ~= Enum.Material.Air and hum.SeatPart == nil then
+                tick_time = tick_time + dt * speed * 0.6
+                local bobbingX = math.cos(tick_time) * 0.12
+                local bobbingY = math.abs(math.sin(tick_time)) * 0.12
+                -- دمج الاهتزاز مع الكاميرا بدون تخريب التصويب
+                hum.CameraOffset = hum.CameraOffset:Lerp(Vector3.new(bobbingX, bobbingY, 0), 0.2)
+            else
+                hum.CameraOffset = hum.CameraOffset:Lerp(Vector3.new(0, 0, 0), 0.1)
+            end
+        end)
+
+        Notify("AAA Realism", "تم تفعيل جرافيكس وحركة فورزا! ستلاحظ اهتزازات واقعية، مياه حقيقية، وتحسن في الانفجارات.", Color3.fromRGB(0, 255, 127))
+    else
+        pcall(function()
+            Lighting.GlobalShadows = OriginalLighting.GlobalShadows or true
+            Lighting.Brightness = OriginalLighting.Brightness or 1
+            Lighting.Ambient = OriginalLighting.Ambient or Color3.fromRGB(128, 128, 128)
+            Lighting.OutdoorAmbient = OriginalLighting.OutdoorAmbient or Color3.fromRGB(128, 128, 128)
+            Lighting.ExposureCompensation = OriginalLighting.ExposureCompensation or 0
+            
+            MaterialService.Use2022Materials = false
+
+            workspace.Terrain.WaterColor = OriginalWater.Color or Color3.fromRGB(12, 84, 91)
+            workspace.Terrain.WaterReflectance = OriginalWater.Reflectance or 1
+            workspace.Terrain.WaterWaveSize = OriginalWater.WaveSize or 0.15
+            workspace.Terrain.WaterWaveSpeed = OriginalWater.WaveSpeed or 10
+            workspace.Terrain.WaterTransparency = OriginalWater.Transparency or 0.3
+
+            if Lighting:FindFirstChild("ZokoBloom") then Lighting.ZokoBloom:Destroy() end
+            if Lighting:FindFirstChild("ZokoSunRays") then Lighting.ZokoSunRays:Destroy() end
+            if Lighting:FindFirstChild("ZokoColor") then Lighting.ZokoColor:Destroy() end
+            
+            if AAALoop then AAALoop:Disconnect() end
+            if ParticleConnection then ParticleConnection:Disconnect() end
+            
+            workspace.CurrentCamera.FieldOfView = 70
+            if Player.Character and Player.Character:FindFirstChild("Humanoid") then
+                Player.Character.Humanoid.CameraOffset = Vector3.new(0,0,0)
+            end
+        end)
+        Notify("Graphics", "تم إرجاع الجرافيكس والحركة الكلاسيكية.", Color3.fromRGB(200, 200, 200))
+    end
+end)
+
 
 local RenderLoop = RunService.RenderStepped:Connect(function()
     local char = Player.Character
@@ -1739,6 +1794,7 @@ BtnInstant.MouseButton1Click:Connect(function()
     else if InstantInteractLoop then InstantInteractLoop:Disconnect() InstantInteractLoop = nil end end
 end)
 
+
 BtnInfJump.MouseButton1Click:Connect(function()
     Features.InfJump = not Features.InfJump
     BtnInfJump.Text = string.split(BtnInfJump.Text, ":")[1] .. (Features.InfJump and ": ON" or ": OFF")
@@ -1824,7 +1880,8 @@ RestartBtn.MouseButton1Click:Connect(function()
     if ESPLoop then ESPLoop:Disconnect() end
     if AimbotLoop then AimbotLoop:Disconnect() end
     if SuperHitLoop then SuperHitLoop:Disconnect() end
-    if DLSSLoop then DLSSLoop:Disconnect() end
+    if AAALoop then AAALoop:Disconnect() end
+    if ParticleConnection then ParticleConnection:Disconnect() end
     if bg then bg:Destroy() end
     if bv then bv:Destroy() end
     
@@ -1843,7 +1900,6 @@ OpenBtn.Text = "Z"
 OpenBtn.Font = Enum.Font.GothamBlack
 OpenBtn.TextSize = 22
 OpenBtn.TextColor3 = Color3.fromRGB(255, 30, 30)
-OpenBtn.Visible = false 
 OpenBtn.Parent = ScreenGui
 Instance.new("UICorner", OpenBtn).CornerRadius = UDim.new(1, 0)
 local OpenStroke = Instance.new("UIStroke", OpenBtn) OpenStroke.Color = Color3.fromRGB(255, 30, 30)
@@ -1860,101 +1916,11 @@ OpenBtn.MouseButton1Click:Connect(function()
     end
 end)
 
+MainFrame:TweenSize(UDim2.new(0, 270, 0, 400), "Out", "Back", 0.6, true)
 
--- ========================================= --
--- شاشة التحميل الصاروخية (Loading Screen)   --
--- ========================================= --
-local LoadingFrame = Instance.new("Frame")
-LoadingFrame.Size = UDim2.new(0, 0, 0, 0)
-LoadingFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-LoadingFrame.BackgroundColor3 = Color3.fromRGB(15, 5, 5)
-LoadingFrame.BackgroundTransparency = 0.2
-LoadingFrame.ClipsDescendants = true
-LoadingFrame.Parent = ScreenGui
-Instance.new("UICorner", LoadingFrame).CornerRadius = UDim.new(0, 12)
-local LoadStroke = Instance.new("UIStroke", LoadingFrame)
-LoadStroke.Color = Color3.fromRGB(255, 30, 30)
-LoadStroke.Thickness = 2
-LoadStroke.Transparency = 0.2
-
-local LoadTitle = Instance.new("TextLabel", LoadingFrame)
-LoadTitle.Size = UDim2.new(1, 0, 0, 40)
-LoadTitle.Position = UDim2.new(0, 0, 0, 10)
-LoadTitle.BackgroundTransparency = 1
-LoadTitle.Text = "ZOKO ENGINE V2"
-LoadTitle.TextColor3 = Color3.fromRGB(255, 30, 30)
-LoadTitle.Font = Enum.Font.GothamBlack
-LoadTitle.TextSize = 22
-
-local StatusText = Instance.new("TextLabel", LoadingFrame)
-StatusText.Size = UDim2.new(1, 0, 0, 20)
-StatusText.Position = UDim2.new(0, 0, 0, 45)
-StatusText.BackgroundTransparency = 1
-StatusText.Text = "Initializing Core..."
-StatusText.TextColor3 = Color3.fromRGB(200, 200, 200)
-StatusText.Font = Enum.Font.GothamMedium
-StatusText.TextSize = 12
-
-local BarBG = Instance.new("Frame", LoadingFrame)
-BarBG.Size = UDim2.new(0.85, 0, 0, 8)
-BarBG.Position = UDim2.new(0.075, 0, 0, 75)
-BarBG.BackgroundColor3 = Color3.fromRGB(30, 5, 5)
-Instance.new("UICorner", BarBG).CornerRadius = UDim.new(1, 0)
-
-local BarFill = Instance.new("Frame", BarBG)
-BarFill.Size = UDim2.new(0, 0, 1, 0)
-BarFill.BackgroundColor3 = Color3.fromRGB(255, 30, 30)
-Instance.new("UICorner", BarFill).CornerRadius = UDim.new(1, 0)
-
-local PercentText = Instance.new("TextLabel", LoadingFrame)
-PercentText.Size = UDim2.new(1, 0, 0, 20)
-PercentText.Position = UDim2.new(0, 0, 0, 90)
-PercentText.BackgroundTransparency = 1
-PercentText.Text = "0%"
-PercentText.TextColor3 = Color3.fromRGB(255, 255, 255)
-PercentText.Font = Enum.Font.GothamBold
-PercentText.TextSize = 14
-
--- أنميشن ظهور شاشة التحميل
-LoadingFrame:TweenSizeAndPosition(UDim2.new(0, 320, 0, 130), UDim2.new(0.5, -160, 0.5, -65), "Out", "Back", 0.5, true)
-task.wait(0.6)
-
--- تشغيل العداد والشريط (صاروخي)
-task.spawn(function()
-    local loadTime = 0.5 -- الوقت أقل من ثانية
-    local tweenInfo = TweenInfo.new(loadTime, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
-    local barTween = TweenService:Create(BarFill, tweenInfo, {Size = UDim2.new(1, 0, 1, 0)})
-    barTween:Play()
-
-    local steps = {
-        [10] = "Bypassing Anti-Cheat...",
-        [30] = "Injecting DLSS-5 Graphics...",
-        [60] = "Loading God Aimbot...",
-        [85] = "Finalizing UI...",
-        [100] = "Ready to Dominate!"
-    }
-
-    for i = 1, 100, 2 do -- يقفز رقمين عشان يخلص فوراً
-        PercentText.Text = i .. "%"
-        if steps[i] or steps[i-1] then StatusText.Text = steps[i] or steps[i-1] end
-        task.wait(0.01)
-    end
-    PercentText.Text = "100%"
-    StatusText.Text = "Ready to Dominate!"
-
-    task.wait(0.2)
-    
-    -- إخفاء شاشة التحميل
-    LoadingFrame:TweenSize(UDim2.new(0, 0, 0, 0), "In", "Back", 0.4, true)
-    task.wait(0.4)
-    LoadingFrame:Destroy()
-
-    -- إظهار الواجهة الرئيسية بعد الانتهاء
-    OpenBtn.Visible = true
-    MainFrame.Visible = true
-    MainFrame:TweenSize(UDim2.new(0, 270, 0, 400), "Out", "Back", 0.6, true)
-end)
-
+-----------------------------------
+-- تنفيذ الانتقال عند الدخول ------
+-----------------------------------
 task.spawn(function()
     local autoJoinTarget = nil
     for name, data in pairs(SavedCheckpoints[CurrentPlaceId] or {}) do
