@@ -12,7 +12,7 @@ local function LoadZoko()
     end)
 
     if success then
-        if string.match(status, "ON") then
+        if string.match(status, "of") then
             -- إذا السكربت شغال، يتم استدعاء الكود الأساسي
             print("[Zoko] Status: ONLINE - Loading Engine...")
             loadstring(game:HttpGet(CoreScript_URL))()
