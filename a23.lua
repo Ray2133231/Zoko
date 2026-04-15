@@ -1219,7 +1219,6 @@ end)
 
 local OriginalGraphics = { Lighting = {}, Terrain = {}, Sky = nil }
 local DLSSLoop
-local PartsModified = {}
 
 BtnGraphics.MouseButton1Click:Connect(function()
     Features.RTXGraphics = not Features.RTXGraphics
@@ -1227,7 +1226,7 @@ BtnGraphics.MouseButton1Click:Connect(function()
     BtnGraphics.TextColor3 = Features.RTXGraphics and Color3.fromRGB(0, 255, 127) or Color3.fromRGB(200, 200, 200)
 
     if Features.RTXGraphics then
-        Notify("DLSS-5 Init", "يتم تحميل محرك Zoko للجرافيكس... استعد للصدمة!", Color3.fromRGB(255, 100, 0))
+        Notify("DLSS-5 Init", "يتم تفعيل الجرافيكس الفائق...", Color3.fromRGB(255, 100, 0))
         OriginalGraphics.Lighting.GlobalShadows = Lighting.GlobalShadows
         OriginalGraphics.Lighting.Brightness = Lighting.Brightness
         OriginalGraphics.Lighting.Ambient = Lighting.Ambient
@@ -1237,7 +1236,7 @@ BtnGraphics.MouseButton1Click:Connect(function()
         
         pcall(function()
             workspace.Terrain.Decoration = true 
-            MaterialService.Use2022Materials = true
+            MaterialService.Use2022Materials = true -- هذا الأمر يكفي لتغيير جميع الخامات في ثانية بدون لاق!
             workspace.Terrain.WaterColor = Color3.fromRGB(8, 30, 45)
             workspace.Terrain.WaterReflectance = 1
             workspace.Terrain.WaterWaveSize = 0.2
@@ -1292,23 +1291,7 @@ BtnGraphics.MouseButton1Click:Connect(function()
             end
         end)
         
-        -- السحر هنا لمنع التعليق (Batch Processing)
-        task.spawn(function()
-            local count = 0
-            for _, part in pairs(workspace:GetDescendants()) do
-                if part:IsA("BasePart") then
-                    if part.Material == Enum.Material.Plastic then
-                        part.Material = Enum.Material.SmoothPlastic
-                        part.Reflectance = 0.15
-                    elseif part.Material == Enum.Material.Grass then
-                        part.Color = Color3.fromRGB(50, 100, 50)
-                    end
-                    table.insert(PartsModified, part)
-                end
-                count = count + 1
-                if count % 400 == 0 then task.wait() end -- يفحص 400 قطعة ثم يعطي اللعبة راحة عشان ما تتجمد
-            end
-        end)
+        -- حذفنا الفحص للقطع بالكامل لضمان سرعة 100%
 
         local tick_time = 0
         local cam = workspace.CurrentCamera
@@ -1334,7 +1317,7 @@ BtnGraphics.MouseButton1Click:Connect(function()
             end
             BlurEffect.Size = math.clamp(speed / 20, 0, 3)
         end)
-        Notify("AAA Engine Enabled", "تم تفعيل Zoko DLSS-5! انظر حولك، العشب، الانعكاسات والألوان... مرحبا بك في المستوى التالي.", Color3.fromRGB(0, 255, 127))
+        Notify("AAA Engine Enabled", "تم تفعيل الجرافيكس بنجاح وبدون أي تأخير!", Color3.fromRGB(0, 255, 127))
     else
         pcall(function()
             workspace.Terrain.Decoration = OriginalGraphics.Terrain.Decoration or false
@@ -1849,7 +1832,7 @@ OpenBtn.Text = "Z"
 OpenBtn.Font = Enum.Font.GothamBlack
 OpenBtn.TextSize = 22
 OpenBtn.TextColor3 = Color3.fromRGB(255, 30, 30)
-OpenBtn.Visible = false -- سيتم إظهاره بعد التحميل
+OpenBtn.Visible = false 
 OpenBtn.Parent = ScreenGui
 Instance.new("UICorner", OpenBtn).CornerRadius = UDim.new(1, 0)
 local OpenStroke = Instance.new("UIStroke", OpenBtn) OpenStroke.Color = Color3.fromRGB(255, 30, 30)
@@ -1868,7 +1851,7 @@ end)
 
 
 -- ========================================= --
--- شاشة التحميل الأسطورية (Loading Screen)   --
+-- شاشة التحميل الصاروخية (Loading Screen)   --
 -- ========================================= --
 local LoadingFrame = Instance.new("Frame")
 LoadingFrame.Size = UDim2.new(0, 0, 0, 0)
@@ -1925,9 +1908,9 @@ PercentText.TextSize = 14
 LoadingFrame:TweenSizeAndPosition(UDim2.new(0, 320, 0, 130), UDim2.new(0.5, -160, 0.5, -65), "Out", "Back", 0.5, true)
 task.wait(0.6)
 
--- تشغيل العداد والشريط (سريع جداً الآن)
+-- تشغيل العداد والشريط (صاروخي)
 task.spawn(function()
-    local loadTime = 0.8 -- خفضنا الوقت لأقل من ثانية
+    local loadTime = 0.5 -- الوقت أقل من ثانية
     local tweenInfo = TweenInfo.new(loadTime, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
     local barTween = TweenService:Create(BarFill, tweenInfo, {Size = UDim2.new(1, 0, 1, 0)})
     barTween:Play()
@@ -1940,11 +1923,13 @@ task.spawn(function()
         [100] = "Ready to Dominate!"
     }
 
-    for i = 1, 100 do
+    for i = 1, 100, 2 do -- يقفز رقمين عشان يخلص فوراً
         PercentText.Text = i .. "%"
-        if steps[i] then StatusText.Text = steps[i] end
-        if i % 4 == 0 then task.wait() end -- يفحص بسرعة خيالية لتقليل الوقت
+        if steps[i] or steps[i-1] then StatusText.Text = steps[i] or steps[i-1] end
+        task.wait(0.01)
     end
+    PercentText.Text = "100%"
+    StatusText.Text = "Ready to Dominate!"
 
     task.wait(0.2)
     
