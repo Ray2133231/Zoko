@@ -1506,7 +1506,7 @@ local OriginalLighting = {}
 local OriginalWater = {}
 local OriginalPartData = {} -- لحفظ حالة كل قطعة قبل تعديلها
 local AAALoop
-local ParticleConnection
+local CharacterGraphicsLoop
 
 BtnGraphics.MouseButton1Click:Connect(function()
     Features.RTXGraphics = not Features.RTXGraphics
@@ -1533,7 +1533,7 @@ BtnGraphics.MouseButton1Click:Connect(function()
             end)
 
             pcall(function()
-                -- 1. الإضاءة السينمائية
+                -- 1. الإضاءة السينمائية (تغيير الجو لواقعي جداً)
                 Lighting.GlobalShadows = true
                 Lighting.Brightness = 3
                 Lighting.ClockTime = 16.5 
@@ -1544,18 +1544,15 @@ BtnGraphics.MouseButton1Click:Connect(function()
                 Lighting.EnvironmentDiffuseScale = 1
                 Lighting.EnvironmentSpecularScale = 1
                 
-                -- 2. تفعيل العشب والخامات الجديدة بشكل إجباري
                 workspace.Terrain.Decoration = true
                 MaterialService.Use2022Materials = true
 
-                -- 3. الموية الواقعية (تتحرك بشكل أسرع وأكبر)
                 workspace.Terrain.WaterColor = Color3.fromRGB(15, 60, 75)
                 workspace.Terrain.WaterReflectance = 1
-                workspace.Terrain.WaterWaveSize = 0.35 -- أمواج واضحة
-                workspace.Terrain.WaterWaveSpeed = 22  -- سرعة واقعية
+                workspace.Terrain.WaterWaveSize = 0.35 
+                workspace.Terrain.WaterWaveSpeed = 22  
                 workspace.Terrain.WaterTransparency = 0.8
                 
-                -- 4. فلاتر التنعيم والألوان
                 if not Lighting:FindFirstChild("ZokoForzaColor") then
                     local CC = Instance.new("ColorCorrectionEffect", Lighting)
                     CC.Name = "ZokoForzaColor"
@@ -1592,46 +1589,79 @@ BtnGraphics.MouseButton1Click:Connect(function()
                 end
             end)
 
-            -- 5. التعديل الذكي للخامات (يحفظ شكلها عشان يقدر يرجعه)
+            -- 2. خوارزمية تعديل الماب (شوارع أسفلت، تراب، سيارات)
             local descendants = workspace:GetDescendants()
             for i, obj in ipairs(descendants) do
                 if obj:IsA("BasePart") then
-                    -- حفظ الداتا الأصلية قبل ما نلعب فيها
-                    if not OriginalPartData[obj] then
-                        OriginalPartData[obj] = {
-                            Material = obj.Material,
-                            Reflectance = obj.Reflectance,
-                            Transparency = obj.Transparency
-                        }
-                    end
-
-                    local name = obj.Name:lower()
-
-                    -- إذا كان شباك أو قزاز (شفاف)
-                    if name:match("window") or name:match("glass") or name:match("windshield") or name:match("mirror") then
-                        obj.Material = Enum.Material.Glass
-                        obj.Reflectance = 0.9
-                        obj.Transparency = math.max(0.4, obj.Transparency)
-                    -- إذا كان جزء من سيارة (بودي) نعطيه لمعة بدون قزاز عشان ما يفقد لونه
-                    elseif name:match("car") or name:match("body") or name:match("vehicle") or name:match("hood") or name:match("door") then
-                        if obj.Material == Enum.Material.Plastic or obj.Material == Enum.Material.SmoothPlastic or obj.Material == Enum.Material.Neon then
-                            obj.Material = Enum.Material.SmoothPlastic
-                            obj.Reflectance = 0.5 -- لمعة الميتاليك 
+                    -- استثناء أجزاء الشخصيات عشان نعدلها بشكل منفصل ومخصص
+                    if not (obj.Parent:FindFirstChild("Humanoid") or (obj.Parent.Parent and obj.Parent.Parent:FindFirstChild("Humanoid"))) then
+                        
+                        -- حفظ الداتا الأصلية قبل التعديل
+                        if not OriginalPartData[obj] then
+                            OriginalPartData[obj] = {
+                                Material = obj.Material,
+                                Reflectance = obj.Reflectance,
+                                Transparency = obj.Transparency
+                            }
                         end
-                    -- الأعشاب والأشجار والتراب
-                    elseif name:match("tree") or name:match("leaf") or name:match("leaves") or name:match("bush") or name:match("grass") then
-                        obj.Material = Enum.Material.LeafyGrass
-                    elseif name:match("dirt") or name:match("ground") or name:match("mud") or name:match("sand") then
-                        obj.Material = Enum.Material.Mud
-                    elseif name:match("wood") or name:match("trunk") then
-                        obj.Material = Enum.Material.Wood
+
+                        local name = obj.Name:lower()
+                        local r, g, b = obj.Color.R, obj.Color.G, obj.Color.B
+
+                        -- الزجاج
+                        if name:match("window") or name:match("glass") or name:match("windshield") or name:match("mirror") then
+                            obj.Material = Enum.Material.Glass
+                            obj.Reflectance = 0.9
+                            obj.Transparency = math.max(0.4, obj.Transparency)
+                        
+                        -- السيارات
+                        elseif name:match("car") or name:match("body") or name:match("vehicle") or name:match("hood") or name:match("door") then
+                            if obj.Material == Enum.Material.Plastic or obj.Material == Enum.Material.SmoothPlastic or obj.Material == Enum.Material.Neon then
+                                obj.Material = Enum.Material.SmoothPlastic
+                                obj.Reflectance = 0.5 
+                            end
+                        
+                        -- النباتات
+                        elseif name:match("tree") or name:match("leaf") or name:match("leaves") or name:match("bush") or name:match("grass") then
+                            obj.Material = Enum.Material.LeafyGrass
+                        elseif name:match("wood") or name:match("trunk") then
+                            obj.Material = Enum.Material.Wood
+                        
+                        -- حل مشكلة الشوارع (إذا القطعة لونها رصاصي/أسود تصير أسفلت، إذا غير كذا تصير تراب أو عشب)
+                        elseif name:match("ground") or name:match("floor") or name:match("baseplate") or name:match("road") or name:match("street") then
+                            -- التحقق من اللون: إذا كانت الألوان متقاربة جداً (يعني درجة رصاصي أو أسود أو أبيض)
+                            if math.abs(r - g) < 0.1 and math.abs(g - b) < 0.1 then
+                                obj.Material = Enum.Material.Asphalt
+                            else
+                                obj.Material = Enum.Material.Mud
+                            end
+                        elseif name:match("dirt") or name:match("mud") or name:match("sand") then
+                            obj.Material = Enum.Material.Mud
+                        end
                     end
                 end
-                if i % 1000 == 0 then task.wait() end -- يمنع التعليق واللاق
+                if i % 1000 == 0 then task.wait() end -- يمنع التعليق
             end
         end)
 
-        -- 6. الكاميرا الأسطورية (اهتزاز للسيارات والمشي)
+        -- 3. تنعيم الشخصيات باستمرار (عشان لو رسبن شخص جديد)
+        CharacterGraphicsLoop = RunService.Heartbeat:Connect(function()
+            for _, p in pairs(game.Players:GetPlayers()) do
+                if p.Character then
+                    for _, part in pairs(p.Character:GetDescendants()) do
+                        if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" and part.Transparency < 1 then
+                            if not OriginalPartData[part] then
+                                OriginalPartData[part] = { Material = part.Material, Reflectance = part.Reflectance, Transparency = part.Transparency }
+                            end
+                            part.Material = Enum.Material.SmoothPlastic
+                            part.Reflectance = 0.05 -- يعطي لمعة بشرة وملابس واقعية تحت الشمس
+                        end
+                    end
+                end
+            end
+        end)
+
+        -- 4. الكاميرا الأسطورية (الاهتزاز)
         local tick_time = 0
         local cam = workspace.CurrentCamera
         
@@ -1645,19 +1675,16 @@ BtnGraphics.MouseButton1Click:Connect(function()
             local speed = hrp.Velocity.Magnitude
             local isVehicle = hum.SeatPart ~= nil
 
-            -- زوم عكسي ذكي مع السرعة (عشان تحس بقوة السرعة)
             local targetFOV = 70 + math.clamp(speed / 3.5, 0, 45)
             cam.FieldOfView = cam.FieldOfView + (targetFOV - cam.FieldOfView) * 0.1
 
             if speed > 1 and hum.FloorMaterial ~= Enum.Material.Air then
                 if not isVehicle then
-                    -- اهتزاز المشي الطبيعي
                     tick_time = tick_time + dt * speed * 0.7
                     local bobbingX = math.cos(tick_time) * 0.15
                     local bobbingY = math.abs(math.sin(tick_time)) * 0.15
                     hum.CameraOffset = hum.CameraOffset:Lerp(Vector3.new(bobbingX, bobbingY, 0), 0.2)
                 else
-                    -- اهتزاز وارتجاف الكاميرا داخل السيارة بسبب المكينة والسرعة
                     local shakeIntensity = math.clamp(speed / 120, 0, 0.4)
                     local shakeX = (math.random() - 0.5) * shakeIntensity
                     local shakeY = (math.random() - 0.5) * shakeIntensity
@@ -1669,9 +1696,9 @@ BtnGraphics.MouseButton1Click:Connect(function()
             end
         end)
 
-        Notify("AAA Realism", "تم التفعيل! سيارات واقعية، مويه تتفاعل، أعشاب 3D وحركة كاميرا خرافية.", Color3.fromRGB(0, 255, 127))
+        Notify("AAA Realism", "تم التفعيل! شوارع واقعية، وتنعيم كامل لجسم الشخصيات واللاعبين.", Color3.fromRGB(0, 255, 127))
     else
-        -- عملية الإغلاق والرجوع للوضع الأصلي
+        -- الإغلاق والإرجاع للوضع الأصلي
         task.spawn(function()
             pcall(function()
                 Lighting.GlobalShadows = OriginalLighting.GlobalShadows or true
@@ -1696,7 +1723,6 @@ BtnGraphics.MouseButton1Click:Connect(function()
                 if Lighting:FindFirstChild("ZokoAtmo") then Lighting.ZokoAtmo:Destroy() end
                 if workspace.Terrain:FindFirstChild("ZokoClouds") then workspace.Terrain.ZokoClouds:Destroy() end
                 
-                -- إرجاع الخامات لكل قطعة لمكانها الطبيعي
                 for obj, data in pairs(OriginalPartData) do
                     if obj and obj.Parent then
                         obj.Material = data.Material
@@ -1704,9 +1730,10 @@ BtnGraphics.MouseButton1Click:Connect(function()
                         obj.Transparency = data.Transparency
                     end
                 end
-                OriginalPartData = {} -- تفريغ الذاكرة
+                OriginalPartData = {} 
                 
                 if AAALoop then AAALoop:Disconnect() end
+                if CharacterGraphicsLoop then CharacterGraphicsLoop:Disconnect() end
                 
                 workspace.CurrentCamera.FieldOfView = 70
                 if Player.Character and Player.Character:FindFirstChild("Humanoid") then
@@ -1942,7 +1969,7 @@ RestartBtn.MouseButton1Click:Connect(function()
     if AimbotLoop then AimbotLoop:Disconnect() end
     if SuperHitLoop then SuperHitLoop:Disconnect() end
     if AAALoop then AAALoop:Disconnect() end
-    if ParticleConnection then ParticleConnection:Disconnect() end
+    if CharacterGraphicsLoop then CharacterGraphicsLoop:Disconnect() end
     if bg then bg:Destroy() end
     if bv then bv:Destroy() end
     
