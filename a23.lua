@@ -1216,10 +1216,9 @@ local AimbotLoop = RunService.RenderStepped:Connect(function()
     end
 end)
 
--- تم حذف متغير OriginalGraphics بالكامل لضمان سرعة 100% وبدون أخطاء
 local DLSSLoop
 
--- كود الجرافيكس الجديد الصاروخي
+-- كود الجرافيكس الجديد الصاروخي مع الحفاظ على الفخامة الواقعية
 BtnGraphics.MouseButton1Click:Connect(function()
     Features.RTXGraphics = not Features.RTXGraphics
     BtnGraphics.Text = "Zoko DLSS-5 Engine : " .. (Features.RTXGraphics and "ON" or "OFF")
@@ -1228,35 +1227,74 @@ BtnGraphics.MouseButton1Click:Connect(function()
     if Features.RTXGraphics then
         Notify("DLSS-5 Init", "يتم تفعيل الجرافيكس الفائق...", Color3.fromRGB(255, 100, 0))
         
-        -- تطبيق الفلاتر الخفيفة بشكل فوري بدون تعليق التكستشرز
-        pcall(function()
-            Lighting.GlobalShadows = true
-            Lighting.Brightness = 2 -- أقل بشوي عشان ما يحرق العين
-            Lighting.ExposureCompensation = 0.2
-            Lighting.EnvironmentDiffuseScale = 1
-            Lighting.EnvironmentSpecularScale = 1
+        -- استخدمنا task.spawn عشان نخلي اللعبة تحمل كل شيء في الخلفية بدون ما تعلق الشاشة ولا جزء من الثانية
+        task.spawn(function()
+            pcall(function()
+                -- تفعيل العشب والخامات الواقعية 2022
+                workspace.Terrain.Decoration = true 
+                MaterialService.Use2022Materials = true 
+                
+                -- تفعيل الموية الواقعية
+                workspace.Terrain.WaterColor = Color3.fromRGB(8, 30, 45)
+                workspace.Terrain.WaterReflectance = 1
+                workspace.Terrain.WaterWaveSize = 0.2
+                workspace.Terrain.WaterWaveSpeed = 15
+                workspace.Terrain.WaterTransparency = 0.85
+                
+                -- الإضاءة والظلال
+                Lighting.GlobalShadows = true
+                Lighting.Brightness = 3 
+                Lighting.ShadowSoftness = 0.2
+                Lighting.EnvironmentDiffuseScale = 1
+                Lighting.EnvironmentSpecularScale = 1
+                Lighting.ExposureCompensation = -0.1
+                
+                -- فلاتر الإضاءة السينمائية
+                if not Lighting:FindFirstChild("ZokoBloom") then
+                    local bloom = Instance.new("BloomEffect", Lighting)
+                    bloom.Name = "ZokoBloom"
+                    bloom.Intensity = 0.15
+                    bloom.Size = 20
+                    bloom.Threshold = 2
+                end
+                if not Lighting:FindFirstChild("ZokoSun") then
+                    local sun = Instance.new("SunRaysEffect", Lighting)
+                    sun.Name = "ZokoSun"
+                    sun.Intensity = 0.05
+                    sun.Spread = 0.5
+                end
+                if not Lighting:FindFirstChild("ZokoCC") then
+                    local cc = Instance.new("ColorCorrectionEffect", Lighting)
+                    cc.Name = "ZokoCC"
+                    cc.Brightness = 0.02
+                    cc.Contrast = 0.15
+                    cc.Saturation = 0.2
+                    cc.TintColor = Color3.fromRGB(255, 250, 245)
+                end
+            end)
             
-            if not Lighting:FindFirstChild("ZokoBloom") then
-                local bloom = Instance.new("BloomEffect", Lighting)
-                bloom.Name = "ZokoBloom"
-                bloom.Intensity = 0.15
-                bloom.Size = 20
-                bloom.Threshold = 2
+            -- إضافة تأثير نار واقعي وإضاءة تطلع من شخصيتك
+            local char = Player.Character
+            if char and char:FindFirstChild("HumanoidRootPart") then
+                if not char.HumanoidRootPart:FindFirstChild("ZokoAAA_Fire") then
+                    local fire = Instance.new("Fire")
+                    fire.Name = "ZokoAAA_Fire"
+                    fire.Size = 4
+                    fire.Heat = 9
+                    fire.Color = Color3.fromRGB(255, 100, 0)
+                    fire.SecondaryColor = Color3.fromRGB(255, 0, 0)
+                    fire.Parent = char.HumanoidRootPart
+                    
+                    local light = Instance.new("PointLight")
+                    light.Name = "ZokoAAA_Light"
+                    light.Color = Color3.fromRGB(255, 150, 50)
+                    light.Range = 10
+                    light.Brightness = 2
+                    light.Parent = char.HumanoidRootPart
+                end
             end
-            if not Lighting:FindFirstChild("ZokoSun") then
-                local sun = Instance.new("SunRaysEffect", Lighting)
-                sun.Name = "ZokoSun"
-                sun.Intensity = 0.05
-                sun.Spread = 0.5
-            end
-            if not Lighting:FindFirstChild("ZokoCC") then
-                local cc = Instance.new("ColorCorrectionEffect", Lighting)
-                cc.Name = "ZokoCC"
-                cc.Brightness = 0.02
-                cc.Contrast = 0.15
-                cc.Saturation = 0.2
-                cc.TintColor = Color3.fromRGB(255, 250, 245)
-            end
+            
+            Notify("AAA Engine Enabled", "تم تفعيل العشب والجرافيكس فوراً وبدون أي تعليق!", Color3.fromRGB(0, 255, 127))
         end)
         
         local tick_time = 0
@@ -1276,6 +1314,7 @@ BtnGraphics.MouseButton1Click:Connect(function()
 
             if speed > 1 and hum.FloorMaterial ~= Enum.Material.Air and hum.SeatPart == nil then
                 tick_time = tick_time + dt * speed * 0.5
+                -- تحسين حركة الكاميرا والأنميشن بشكل واقعي ومريح للعين
                 local bobbingX = math.cos(tick_time) * 0.1
                 local bobbingY = math.abs(math.sin(tick_time)) * 0.1
                 hum.CameraOffset = hum.CameraOffset:Lerp(Vector3.new(bobbingX, bobbingY, 0), 0.2)
@@ -1284,22 +1323,33 @@ BtnGraphics.MouseButton1Click:Connect(function()
             end
             BlurEffect.Size = math.clamp(speed / 25, 0, 2)
         end)
-        Notify("AAA Engine Enabled", "تم تفعيل الجرافيكس فوراً وبدون تعليق!", Color3.fromRGB(0, 255, 127))
     else
-        -- إرجاع اللعبة لوضعها الطبيعي فوراً
-        pcall(function()
-            if Lighting:FindFirstChild("ZokoBloom") then Lighting.ZokoBloom:Destroy() end
-            if Lighting:FindFirstChild("ZokoSun") then Lighting.ZokoSun:Destroy() end
-            if Lighting:FindFirstChild("ZokoCC") then Lighting.ZokoCC:Destroy() end
-            
-            if DLSSLoop then DLSSLoop:Disconnect() end
-            workspace.CurrentCamera.FieldOfView = 70
-            if Player.Character and Player.Character:FindFirstChild("Humanoid") then
-                Player.Character.Humanoid.CameraOffset = Vector3.new(0,0,0)
-            end
-            BlurEffect.Size = 0
+        -- إرجاع اللعبة لوضعها الطبيعي 
+        task.spawn(function()
+            pcall(function()
+                workspace.Terrain.Decoration = false 
+                MaterialService.Use2022Materials = false
+                
+                if Lighting:FindFirstChild("ZokoBloom") then Lighting.ZokoBloom:Destroy() end
+                if Lighting:FindFirstChild("ZokoSun") then Lighting.ZokoSun:Destroy() end
+                if Lighting:FindFirstChild("ZokoCC") then Lighting.ZokoCC:Destroy() end
+                
+                if DLSSLoop then DLSSLoop:Disconnect() end
+                workspace.CurrentCamera.FieldOfView = 70
+                if Player.Character and Player.Character:FindFirstChild("Humanoid") then
+                    Player.Character.Humanoid.CameraOffset = Vector3.new(0,0,0)
+                end
+                BlurEffect.Size = 0
+                
+                -- إزالة النار والإضاءة من الشخصية
+                local char = Player.Character
+                if char and char:FindFirstChild("HumanoidRootPart") then
+                    if char.HumanoidRootPart:FindFirstChild("ZokoAAA_Fire") then char.HumanoidRootPart.ZokoAAA_Fire:Destroy() end
+                    if char.HumanoidRootPart:FindFirstChild("ZokoAAA_Light") then char.HumanoidRootPart.ZokoAAA_Light:Destroy() end
+                end
+            end)
+            Notify("Graphics", "تم إرجاع الجرافيكس إلى وضع روبلوكس العادي.", Color3.fromRGB(200, 200, 200))
         end)
-        Notify("Graphics", "تم إرجاع الجرافيكس إلى وضع روبلوكس العادي.", Color3.fromRGB(200, 200, 200))
     end
 end)
 
