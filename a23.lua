@@ -1,7 +1,7 @@
 -- [[ ZOKO LOADER - نظام التحقق ]] --
 
 -- 1. رابط حالة السكربت (حط رابط Pastebin Raw اللي مكتوب فيه ON أو OFF)
-local Status_URL = "رابط_ملف_الحالة_حقك_هنا" 
+local Status_URL = "https://raw.githubusercontent.com/Ray2133231/Zoko/0d6a2a48e605c97d0676b9b48e376b917a348a79/a23.lua" 
 
 -- 2. رابط الكود الأساسي (الملف الثاني - يفضل يكون مشفر وما تعطيه لأحد مباشرة)
 local CoreScript_URL = "رابط_الملف_الثاني_الأساسي_هنا"
