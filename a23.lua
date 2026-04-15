@@ -85,7 +85,7 @@ Stroke.Thickness = 1.5
 local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, 0, 0, 40)
 Title.BackgroundTransparency = 1
-Title.Text = "Zoko Trainer V1.5"
+Title.Text = "Zoko Trainer V2.0"
 Title.TextColor3 = Color3.fromRGB(255, 30, 30)
 Title.Font = Enum.Font.GothamBlack
 Title.TextSize = 22
@@ -1526,52 +1526,67 @@ BtnGraphics.MouseButton1Click:Connect(function()
         OriginalWater.WaveSpeed = workspace.Terrain.WaterWaveSpeed
         OriginalWater.Transparency = workspace.Terrain.WaterTransparency
 
-        pcall(function()
-            -- إضاءة متوازنة وممتازة لا تعمي العين
-            Lighting.GlobalShadows = true
-            Lighting.Brightness = 2.5
-            Lighting.ClockTime = 14 -- وقت الغروب الذهبي
-            Lighting.Ambient = Color3.fromRGB(100, 100, 100)
-            Lighting.OutdoorAmbient = Color3.fromRGB(100, 100, 100)
-            Lighting.ExposureCompensation = -0.15 -- لتقليل السطوع المزعج وإبراز التفاصيل
-            Lighting.EnvironmentDiffuseScale = 1
-            Lighting.EnvironmentSpecularScale = 1
-            
-            -- تفعيل خامات روبلوكس العالية الدقة (يحافظ على السكنات ويعطي تفاصيل للماب)
-            MaterialService.Use2022Materials = true
+        -- تشغيل التعديلات باستخدام task.spawn عشان ما يعلق السكربت نهائياً
+        task.spawn(function()
+            pcall(function()
+                -- استخدام إضاءة Future للواقعية المطلقة
+                sethiddenproperty(Lighting, "Technology", 3)
+            end)
 
-            -- واقعية المياه
-            workspace.Terrain.WaterColor = Color3.fromRGB(10, 40, 50)
-            workspace.Terrain.WaterReflectance = 1
-            workspace.Terrain.WaterWaveSize = 0.15
-            workspace.Terrain.WaterWaveSpeed = 12
-            workspace.Terrain.WaterTransparency = 0.9
-            
-            -- Bloom خفيف جدا للواقعية
-            if not Lighting:FindFirstChild("ZokoBloom") then
-                local Bloom = Instance.new("BloomEffect", Lighting)
-                Bloom.Name = "ZokoBloom"
-                Bloom.Intensity = 0.15
-                Bloom.Size = 20
-                Bloom.Threshold = 2
-            end
+            pcall(function()
+                -- إضاءة متوازنة وممتازة لا تعمي العين
+                Lighting.GlobalShadows = true
+                Lighting.Brightness = 2.5
+                Lighting.ClockTime = 16.5 -- وقت الغروب الذهبي لستايل فورزا
+                Lighting.Ambient = Color3.fromRGB(50, 50, 50)
+                Lighting.OutdoorAmbient = Color3.fromRGB(70, 70, 70)
+                Lighting.ExposureCompensation = 0.1 
+                Lighting.EnvironmentDiffuseScale = 1
+                Lighting.EnvironmentSpecularScale = 1
+                
+                -- تفعيل العشب والخامات العالية الدقة
+                workspace.Terrain.Decoration = true
+                MaterialService.Use2022Materials = true
 
-            -- أشعة شمس هادئة
-            if not Lighting:FindFirstChild("ZokoSunRays") then
-                local SunRays = Instance.new("SunRaysEffect", Lighting)
-                SunRays.Name = "ZokoSunRays"
-                SunRays.Intensity = 0.05
-                SunRays.Spread = 0.9
-            end
+                -- واقعية المياه
+                workspace.Terrain.WaterColor = Color3.fromRGB(10, 40, 50)
+                workspace.Terrain.WaterReflectance = 1
+                workspace.Terrain.WaterWaveSize = 0.15
+                workspace.Terrain.WaterWaveSpeed = 12
+                workspace.Terrain.WaterTransparency = 0.9
+                
+                -- فلتر لوني دافئ ومشبع يعطيك إحساس فورزا 
+                if not Lighting:FindFirstChild("ZokoForzaColor") then
+                    local CC = Instance.new("ColorCorrectionEffect", Lighting)
+                    CC.Name = "ZokoForzaColor"
+                    CC.Brightness = 0.05
+                    CC.Contrast = 0.25
+                    CC.Saturation = 0.35 
+                    CC.TintColor = Color3.fromRGB(255, 240, 220) 
+                end
 
-            -- تحسين الألوان دون تدمير لون البشرة
-            if not Lighting:FindFirstChild("ZokoColor") then
-                local CC = Instance.new("ColorCorrectionEffect", Lighting)
-                CC.Name = "ZokoColor"
-                CC.Brightness = 0.02
-                CC.Contrast = 0.15
-                CC.Saturation = 0.2
-                CC.TintColor = Color3.fromRGB(255, 250, 245)
+                -- غيوم واقعية إذا كانت مدعومة في اللعبة
+                if not workspace.Terrain:FindFirstChild("ZokoClouds") then
+                    local clouds = Instance.new("Clouds", workspace.Terrain)
+                    clouds.Name = "ZokoClouds"
+                    clouds.Cover = 0.5
+                    clouds.Density = 0.8
+                    clouds.Color = Color3.fromRGB(255, 255, 255)
+                end
+            end)
+
+            -- نظام الانعكاسات للسيارات والقزاز 
+            for _, obj in pairs(workspace:GetDescendants()) do
+                if obj:IsA("BasePart") then
+                    -- تحويل الأشياء الشفافة أو القزاز لانعكاس عالي (ستايل Glassmorphism أسطوري)
+                    if obj.Material == Enum.Material.Glass or obj.Transparency > 0.1 and obj.Transparency < 1 then
+                        obj.Material = Enum.Material.Glass
+                        obj.Reflectance = 1 
+                    -- إذا كان الجسم جزء من سيارة، نعطيه لمعة
+                    elseif obj.Name:lower():match("car") or obj.Name:lower():match("vehicle") or obj.Name:lower():match("body") then
+                        obj.Reflectance = math.clamp(obj.Reflectance + 0.5, 0, 1)
+                    end
+                end
             end
         end)
 
@@ -1624,34 +1639,36 @@ BtnGraphics.MouseButton1Click:Connect(function()
             end
         end)
 
-        Notify("AAA Realism", "تم تفعيل جرافيكس وحركة فورزا! ستلاحظ اهتزازات واقعية، مياه حقيقية، وتحسن في الانفجارات.", Color3.fromRGB(0, 255, 127))
+        Notify("AAA Realism", "تم تفعيل جرافيكس وحركة فورزا! ستلاحظ انعكاسات قوية، ألوان سينمائية وعشب واقعي.", Color3.fromRGB(0, 255, 127))
     else
-        pcall(function()
-            Lighting.GlobalShadows = OriginalLighting.GlobalShadows or true
-            Lighting.Brightness = OriginalLighting.Brightness or 1
-            Lighting.Ambient = OriginalLighting.Ambient or Color3.fromRGB(128, 128, 128)
-            Lighting.OutdoorAmbient = OriginalLighting.OutdoorAmbient or Color3.fromRGB(128, 128, 128)
-            Lighting.ExposureCompensation = OriginalLighting.ExposureCompensation or 0
-            
-            MaterialService.Use2022Materials = false
+        task.spawn(function()
+            pcall(function()
+                Lighting.GlobalShadows = OriginalLighting.GlobalShadows or true
+                Lighting.Brightness = OriginalLighting.Brightness or 1
+                Lighting.Ambient = OriginalLighting.Ambient or Color3.fromRGB(128, 128, 128)
+                Lighting.OutdoorAmbient = OriginalLighting.OutdoorAmbient or Color3.fromRGB(128, 128, 128)
+                Lighting.ExposureCompensation = OriginalLighting.ExposureCompensation or 0
+                
+                workspace.Terrain.Decoration = false
+                MaterialService.Use2022Materials = false
 
-            workspace.Terrain.WaterColor = OriginalWater.Color or Color3.fromRGB(12, 84, 91)
-            workspace.Terrain.WaterReflectance = OriginalWater.Reflectance or 1
-            workspace.Terrain.WaterWaveSize = OriginalWater.WaveSize or 0.15
-            workspace.Terrain.WaterWaveSpeed = OriginalWater.WaveSpeed or 10
-            workspace.Terrain.WaterTransparency = OriginalWater.Transparency or 0.3
+                workspace.Terrain.WaterColor = OriginalWater.Color or Color3.fromRGB(12, 84, 91)
+                workspace.Terrain.WaterReflectance = OriginalWater.Reflectance or 1
+                workspace.Terrain.WaterWaveSize = OriginalWater.WaveSize or 0.15
+                workspace.Terrain.WaterWaveSpeed = OriginalWater.WaveSpeed or 10
+                workspace.Terrain.WaterTransparency = OriginalWater.Transparency or 0.3
 
-            if Lighting:FindFirstChild("ZokoBloom") then Lighting.ZokoBloom:Destroy() end
-            if Lighting:FindFirstChild("ZokoSunRays") then Lighting.ZokoSunRays:Destroy() end
-            if Lighting:FindFirstChild("ZokoColor") then Lighting.ZokoColor:Destroy() end
-            
-            if AAALoop then AAALoop:Disconnect() end
-            if ParticleConnection then ParticleConnection:Disconnect() end
-            
-            workspace.CurrentCamera.FieldOfView = 70
-            if Player.Character and Player.Character:FindFirstChild("Humanoid") then
-                Player.Character.Humanoid.CameraOffset = Vector3.new(0,0,0)
-            end
+                if Lighting:FindFirstChild("ZokoForzaColor") then Lighting.ZokoForzaColor:Destroy() end
+                if workspace.Terrain:FindFirstChild("ZokoClouds") then workspace.Terrain.ZokoClouds:Destroy() end
+                
+                if AAALoop then AAALoop:Disconnect() end
+                if ParticleConnection then ParticleConnection:Disconnect() end
+                
+                workspace.CurrentCamera.FieldOfView = 70
+                if Player.Character and Player.Character:FindFirstChild("Humanoid") then
+                    Player.Character.Humanoid.CameraOffset = Vector3.new(0,0,0)
+                end
+            end)
         end)
         Notify("Graphics", "تم إرجاع الجرافيكس والحركة الكلاسيكية.", Color3.fromRGB(200, 200, 200))
     end
@@ -1847,7 +1864,7 @@ DevBtn.TextSize = 14
 DevBtn.Parent = MainFrame
 
 DevBtn.MouseButton1Click:Connect(function()
-    local site = "http://45.137.98.42:5000/"
+    local site = "https://www.zoko.site/"
     if setclipboard then
         setclipboard(site) Notify("Zoko Link Copied!", "تم نسخ الرابط بنجاح!")
     else Notify("Zoko Site", "الرابط: " .. site) end
