@@ -16,7 +16,6 @@ ScreenGui.Name = "Zoko_UI"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
--- نظام حماية لضمان ظهور الواجهة في أي هاك (CoreGui أو PlayerGui)
 local function GetSafeUI_Parent()
     local success, core = pcall(function() return game:GetService("CoreGui") end)
     if success and core then return core end
@@ -80,7 +79,7 @@ MainFrame.Size = UDim2.new(0, 0, 0, 0)
 MainFrame.Position = UDim2.new(0.5, -135, 0.5, -200)
 MainFrame.BackgroundColor3 = Color3.fromRGB(15, 5, 5) 
 MainFrame.BackgroundTransparency = 0.35
-MainFrame.Visible = false -- مخفية في البداية عشان شاشة التحميل
+MainFrame.Visible = false
 MainFrame.ClipsDescendants = true
 MainFrame.Parent = ScreenGui
 
@@ -1217,9 +1216,10 @@ local AimbotLoop = RunService.RenderStepped:Connect(function()
     end
 end)
 
-local OriginalGraphics = { Lighting = {}, Terrain = {}, Sky = nil }
+-- تم حذف متغير OriginalGraphics بالكامل لضمان سرعة 100% وبدون أخطاء
 local DLSSLoop
 
+-- كود الجرافيكس الجديد الصاروخي
 BtnGraphics.MouseButton1Click:Connect(function()
     Features.RTXGraphics = not Features.RTXGraphics
     BtnGraphics.Text = "Zoko DLSS-5 Engine : " .. (Features.RTXGraphics and "ON" or "OFF")
@@ -1227,75 +1227,42 @@ BtnGraphics.MouseButton1Click:Connect(function()
 
     if Features.RTXGraphics then
         Notify("DLSS-5 Init", "يتم تفعيل الجرافيكس الفائق...", Color3.fromRGB(255, 100, 0))
-        OriginalGraphics.Lighting.GlobalShadows = Lighting.GlobalShadows
-        OriginalGraphics.Lighting.Brightness = Lighting.Brightness
-        OriginalGraphics.Lighting.Ambient = Lighting.Ambient
-        OriginalGraphics.Terrain.WaterColor = workspace.Terrain.WaterColor
-        OriginalGraphics.Terrain.WaterReflectance = workspace.Terrain.WaterReflectance
-        OriginalGraphics.Terrain.Decoration = workspace.Terrain.Decoration
         
+        -- تطبيق الفلاتر الخفيفة بشكل فوري بدون تعليق التكستشرز
         pcall(function()
-            workspace.Terrain.Decoration = true 
-            MaterialService.Use2022Materials = true -- هذا الأمر يكفي لتغيير جميع الخامات في ثانية بدون لاق!
-            workspace.Terrain.WaterColor = Color3.fromRGB(8, 30, 45)
-            workspace.Terrain.WaterReflectance = 1
-            workspace.Terrain.WaterWaveSize = 0.2
-            workspace.Terrain.WaterWaveSpeed = 15
-            workspace.Terrain.WaterTransparency = 0.85
             Lighting.GlobalShadows = true
-            Lighting.Brightness = 3
-            Lighting.ClockTime = 16.5
-            Lighting.ShadowSoftness = 0.2
+            Lighting.Brightness = 2 -- أقل بشوي عشان ما يحرق العين
+            Lighting.ExposureCompensation = 0.2
             Lighting.EnvironmentDiffuseScale = 1
             Lighting.EnvironmentSpecularScale = 1
-            Lighting.ExposureCompensation = -0.1
             
-            if not Lighting:FindFirstChild("ZokoAtmosphere") then
-                local atmo = Instance.new("Atmosphere", Lighting)
-                atmo.Name = "ZokoAtmosphere"
-                atmo.Density = 0.3
-                atmo.Offset = 0.25
-                atmo.Color = Color3.fromRGB(199, 170, 107)
-                atmo.Decay = Color3.fromRGB(92, 60, 13)
-                atmo.Glare = 0.5
-                atmo.Haze = 2
-            end
             if not Lighting:FindFirstChild("ZokoBloom") then
                 local bloom = Instance.new("BloomEffect", Lighting)
                 bloom.Name = "ZokoBloom"
-                bloom.Intensity = 0.3
-                bloom.Size = 25
-                bloom.Threshold = 1.5
+                bloom.Intensity = 0.15
+                bloom.Size = 20
+                bloom.Threshold = 2
             end
             if not Lighting:FindFirstChild("ZokoSun") then
                 local sun = Instance.new("SunRaysEffect", Lighting)
                 sun.Name = "ZokoSun"
-                sun.Intensity = 0.08
-                sun.Spread = 0.8
+                sun.Intensity = 0.05
+                sun.Spread = 0.5
             end
             if not Lighting:FindFirstChild("ZokoCC") then
                 local cc = Instance.new("ColorCorrectionEffect", Lighting)
                 cc.Name = "ZokoCC"
-                cc.Brightness = 0.03
-                cc.Contrast = 0.2
-                cc.Saturation = 0.4
-                cc.TintColor = Color3.fromRGB(255, 245, 235)
-            end
-            if not Lighting:FindFirstChild("ZokoDOF") then
-                local dof = Instance.new("DepthOfFieldEffect", Lighting)
-                dof.Name = "ZokoDOF"
-                dof.FarIntensity = 0.1
-                dof.FocusDistance = 50
-                dof.InFocusRadius = 50
-                dof.NearIntensity = 0.1
+                cc.Brightness = 0.02
+                cc.Contrast = 0.15
+                cc.Saturation = 0.2
+                cc.TintColor = Color3.fromRGB(255, 250, 245)
             end
         end)
         
-        -- حذفنا الفحص للقطع بالكامل لضمان سرعة 100%
-
         local tick_time = 0
         local cam = workspace.CurrentCamera
         
+        if DLSSLoop then DLSSLoop:Disconnect() end
         DLSSLoop = RunService.RenderStepped:Connect(function(dt)
             local char = Player.Character
             if not char then return end
@@ -1304,32 +1271,26 @@ BtnGraphics.MouseButton1Click:Connect(function()
             if not hum or not hrp then return end
 
             local speed = hrp.Velocity.Magnitude
-            local targetFOV = 70 + math.clamp(speed / 3, 0, 45)
-            cam.FieldOfView = cam.FieldOfView + (targetFOV - cam.FieldOfView) * 0.15
+            local targetFOV = 70 + math.clamp(speed / 4, 0, 30)
+            cam.FieldOfView = cam.FieldOfView + (targetFOV - cam.FieldOfView) * 0.1
 
             if speed > 1 and hum.FloorMaterial ~= Enum.Material.Air and hum.SeatPart == nil then
-                tick_time = tick_time + dt * speed * 0.6
-                local bobbingX = math.cos(tick_time) * 0.15
-                local bobbingY = math.abs(math.sin(tick_time)) * 0.15
+                tick_time = tick_time + dt * speed * 0.5
+                local bobbingX = math.cos(tick_time) * 0.1
+                local bobbingY = math.abs(math.sin(tick_time)) * 0.1
                 hum.CameraOffset = hum.CameraOffset:Lerp(Vector3.new(bobbingX, bobbingY, 0), 0.2)
             else
                 hum.CameraOffset = hum.CameraOffset:Lerp(Vector3.new(0, 0, 0), 0.1)
             end
-            BlurEffect.Size = math.clamp(speed / 20, 0, 3)
+            BlurEffect.Size = math.clamp(speed / 25, 0, 2)
         end)
-        Notify("AAA Engine Enabled", "تم تفعيل الجرافيكس بنجاح وبدون أي تأخير!", Color3.fromRGB(0, 255, 127))
+        Notify("AAA Engine Enabled", "تم تفعيل الجرافيكس فوراً وبدون تعليق!", Color3.fromRGB(0, 255, 127))
     else
+        -- إرجاع اللعبة لوضعها الطبيعي فوراً
         pcall(function()
-            workspace.Terrain.Decoration = OriginalGraphics.Terrain.Decoration or false
-            MaterialService.Use2022Materials = false
-            Lighting.GlobalShadows = OriginalGraphics.Lighting.GlobalShadows or true
-            workspace.Terrain.WaterColor = OriginalGraphics.Terrain.WaterColor or Color3.fromRGB(12, 84, 91)
-            
-            if Lighting:FindFirstChild("ZokoAtmosphere") then Lighting.ZokoAtmosphere:Destroy() end
             if Lighting:FindFirstChild("ZokoBloom") then Lighting.ZokoBloom:Destroy() end
             if Lighting:FindFirstChild("ZokoSun") then Lighting.ZokoSun:Destroy() end
             if Lighting:FindFirstChild("ZokoCC") then Lighting.ZokoCC:Destroy() end
-            if Lighting:FindFirstChild("ZokoDOF") then Lighting.ZokoDOF:Destroy() end
             
             if DLSSLoop then DLSSLoop:Disconnect() end
             workspace.CurrentCamera.FieldOfView = 70
