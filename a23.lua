@@ -5,12 +5,13 @@ local CoreGui = game:GetService("CoreGui")
 local VirtualUser = game:GetService("VirtualUser")
 local TweenService = game:GetService("TweenService")
 local HttpService = game:GetService("HttpService")
+local Lighting = game:GetService("Lighting")
 local Mouse = Player:GetMouse()
 
 if _G.ZokoUI then pcall(function() _G.ZokoUI:Destroy() end) end
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "Zoko_UI"
+ScreenGui.Name = "Zoko_UI_Epic"
 ScreenGui.Parent = Player:WaitForChild("PlayerGui")
 ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
@@ -19,7 +20,7 @@ _G.ZokoUI = ScreenGui
 -----------------------------------
 -- نظام حفظ النقاط (Checkpoints) --
 -----------------------------------
-local CP_FileName = "Zoko_Checkpoints_V1.json"
+local CP_FileName = "Zoko_Checkpoints_Epic.json"
 local SavedCheckpoints = {}
 local CurrentPlaceId = tostring(game.PlaceId)
 
@@ -68,26 +69,32 @@ CleanupWands()
 -----------------------------------
 local MainFrame = Instance.new("Frame")
 MainFrame.Size = UDim2.new(0, 0, 0, 0)
-MainFrame.Position = UDim2.new(0.5, -135, 0.5, -200)
-MainFrame.BackgroundColor3 = Color3.fromRGB(20, 5, 5) -- أحمر غامق زجاجي
-MainFrame.BackgroundTransparency = 0.45 -- شفافية زجاجية
+MainFrame.Position = UDim2.new(0.5, -145, 0.5, -230)
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 0, 0)
+MainFrame.BackgroundTransparency = 0.35 
 MainFrame.Visible = true
 MainFrame.ClipsDescendants = true
 MainFrame.Parent = ScreenGui
 
-Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 12)
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 15)
 local Stroke = Instance.new("UIStroke", MainFrame)
-Stroke.Color = Color3.fromRGB(255, 30, 30) -- إطار أحمر نيون
-Stroke.Thickness = 1.5
+Stroke.Color = Color3.fromRGB(255, 20, 20)
+Stroke.Thickness = 2
+Stroke.Transparency = 0.1
 
 local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1, 0, 0, 40)
+Title.Size = UDim2.new(1, 0, 0, 45)
 Title.BackgroundTransparency = 1
-Title.Text = "Zoko Trainer V1.5"
+Title.Text = "Zoko Trainer V2.0 EPIC"
 Title.TextColor3 = Color3.fromRGB(255, 30, 30)
 Title.Font = Enum.Font.GothamBlack
-Title.TextSize = 22
+Title.TextSize = 24
 Title.Parent = MainFrame
+
+local TitleGlow = Instance.new("UIStroke", Title)
+TitleGlow.Color = Color3.fromRGB(255, 0, 0)
+TitleGlow.Thickness = 0.5
+TitleGlow.Transparency = 0.5
 
 local function MakeDraggable(gui)
     local dragging, dragInput, dragStart, startPos
@@ -117,32 +124,32 @@ MakeDraggable(MainFrame)
 
 local ScrollFrame = Instance.new("ScrollingFrame")
 ScrollFrame.Size = UDim2.new(1, 0, 1, -110) 
-ScrollFrame.Position = UDim2.new(0, 0, 0, 45)
+ScrollFrame.Position = UDim2.new(0, 0, 0, 50)
 ScrollFrame.BackgroundTransparency = 1
-ScrollFrame.ScrollBarThickness = 4
+ScrollFrame.ScrollBarThickness = 5
 ScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(255, 30, 30)
-ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 1100)
+ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 1600) -- تم التكبير لاستيعاب الخيارات الجديدة
 ScrollFrame.Parent = MainFrame
 
 local ListLayout = Instance.new("UIListLayout")
 ListLayout.Parent = ScrollFrame
 ListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-ListLayout.Padding = UDim.new(0, 8)
+ListLayout.Padding = UDim.new(0, 10)
 
 local function Notify(titleText, descText, color)
     local useColor = color or Color3.fromRGB(255, 30, 30)
     local NotifFrame = Instance.new("Frame")
-    NotifFrame.Size = UDim2.new(0, 250, 0, 70)
+    NotifFrame.Size = UDim2.new(0, 270, 0, 75)
     NotifFrame.Position = UDim2.new(1, 10, 0.8, 0)
-    NotifFrame.BackgroundColor3 = Color3.fromRGB(20, 5, 5)
-    NotifFrame.BackgroundTransparency = 0.4
+    NotifFrame.BackgroundColor3 = Color3.fromRGB(15, 0, 0)
+    NotifFrame.BackgroundTransparency = 0.3
     NotifFrame.ZIndex = 200
     NotifFrame.Parent = ScreenGui
     
     Instance.new("UICorner", NotifFrame).CornerRadius = UDim.new(0, 10)
     local NStroke = Instance.new("UIStroke", NotifFrame)
     NStroke.Color = useColor
-    NStroke.Thickness = 1.5
+    NStroke.Thickness = 2
 
     local NTitle = Instance.new("TextLabel", NotifFrame)
     NTitle.Size = UDim2.new(1, -10, 0, 25)
@@ -150,24 +157,24 @@ local function Notify(titleText, descText, color)
     NTitle.BackgroundTransparency = 1
     NTitle.Text = titleText
     NTitle.TextColor3 = useColor
-    NTitle.Font = Enum.Font.GothamBold
-    NTitle.TextSize = 16
+    NTitle.Font = Enum.Font.GothamBlack
+    NTitle.TextSize = 17
     NTitle.ZIndex = 201
     NTitle.TextXAlignment = Enum.TextXAlignment.Left
 
     local NDesc = Instance.new("TextLabel", NotifFrame)
-    NDesc.Size = UDim2.new(1, -10, 0, 30)
+    NDesc.Size = UDim2.new(1, -10, 0, 35)
     NDesc.Position = UDim2.new(0, 10, 0, 30)
     NDesc.BackgroundTransparency = 1
     NDesc.Text = descText
-    NDesc.TextColor3 = Color3.fromRGB(200, 200, 200)
+    NDesc.TextColor3 = Color3.fromRGB(220, 220, 220)
     NDesc.Font = Enum.Font.GothamMedium
-    NDesc.TextSize = 13
+    NDesc.TextSize = 14
     NDesc.ZIndex = 201
     NDesc.TextXAlignment = Enum.TextXAlignment.Left
     NDesc.TextWrapped = true
 
-    NotifFrame:TweenPosition(UDim2.new(1, -260, 0.8, 0), "Out", "Back", 0.5, true)
+    NotifFrame:TweenPosition(UDim2.new(1, -280, 0.8, 0), "Out", "Back", 0.5, true)
     task.wait(3.5)
     NotifFrame:TweenPosition(UDim2.new(1, 10, 0.8, 0), "In", "Back", 0.5, true)
     task.wait(0.5)
@@ -175,7 +182,7 @@ local function Notify(titleText, descText, color)
 end
 
 -----------------------------------
--- واجهة الانتقالات الزجاجية ---
+-- واجهة الانتقالات (Checkpoints) --
 -----------------------------------
 local TpFrame = Instance.new("Frame")
 TpFrame.Size = UDim2.new(0, 250, 0, 350)
@@ -269,7 +276,6 @@ TxtOrderMode.Font = Enum.Font.GothamBold
 TxtOrderMode.TextScaled = true
 TxtOrderMode.Visible = false
 
--- مودل إدخال/تعديل الاسم زجاجي
 local ModalFrame = Instance.new("Frame", ScreenGui)
 ModalFrame.Size = UDim2.new(0, 220, 0, 120)
 ModalFrame.Position = UDim2.new(0.5, -110, 0.5, -60)
@@ -303,7 +309,6 @@ BtnSaveModal.Text = "Save"
 BtnSaveModal.TextColor3 = Color3.fromRGB(255, 255, 255)
 BtnSaveModal.Font = Enum.Font.GothamBold
 BtnSaveModal.TextSize = 14
-BtnSaveModal.TextScaled = true
 BtnSaveModal.ZIndex = 51
 Instance.new("UICorner", BtnSaveModal).CornerRadius = UDim.new(0, 6)
 
@@ -315,7 +320,6 @@ BtnCancelModal.Text = "Cancel"
 BtnCancelModal.TextColor3 = Color3.fromRGB(255, 255, 255)
 BtnCancelModal.Font = Enum.Font.GothamBold
 BtnCancelModal.TextSize = 14
-BtnCancelModal.TextScaled = true
 BtnCancelModal.ZIndex = 51
 Instance.new("UICorner", BtnCancelModal).CornerRadius = UDim.new(0, 6)
 
@@ -369,17 +373,8 @@ local SelectedCpName = ""
 local RenameMode = false
 local IsReorderMode = false
 local TempCheckpoints = {}
+local DragInfo = {IsDragging = false, Ghost = nil, Placeholder = nil, OffsetY = 0}
 
-local DragInfo = {
-    IsDragging = false,
-    Ghost = nil,
-    Placeholder = nil,
-    OffsetY = 0
-}
-
------------------------------------
--- دوال التحديث والإلغاء للإصلاح --
------------------------------------
 local function RefreshTpList()
     for _, v in pairs(TpScroll:GetChildren()) do
         if v:IsA("Frame") or v:IsA("TextButton") then v:Destroy() end
@@ -387,9 +382,7 @@ local function RefreshTpList()
     
     local sortedList = {}
     local dataSrc = IsReorderMode and TempCheckpoints or SavedCheckpoints[CurrentPlaceId]
-    for name, data in pairs(dataSrc) do
-        table.insert(sortedList, {Name = name, Data = data})
-    end
+    for name, data in pairs(dataSrc) do table.insert(sortedList, {Name = name, Data = data}) end
     table.sort(sortedList, function(a, b) return a.Data.Order < b.Data.Order end)
     
     local ySize = 0
@@ -478,7 +471,6 @@ local function CancelEditMode()
         BtnSaveOrder.Visible = false
         BtnCancelOrder.Visible = false
         TxtOrderMode.Visible = false
-        
         TempCheckpoints = {}
         RefreshTpList()
     end
@@ -547,15 +539,13 @@ UIS.InputEnded:Connect(function(input)
 end)
 
 BtnToggleReorder.MouseButton1Click:Connect(function()
-    if IsReorderMode then
-        CancelEditMode() 
+    if IsReorderMode then CancelEditMode() 
     else
         IsReorderMode = true
         TempCheckpoints = {}
         for k, v in pairs(SavedCheckpoints[CurrentPlaceId] or {}) do
             TempCheckpoints[k] = {X = v.X, Y = v.Y, Z = v.Z, AutoJoin = v.AutoJoin, Order = v.Order}
         end
-        
         BtnToggleReorder.ImageColor3 = Color3.fromRGB(255, 150, 0)
         BtnAddNewTp.Visible = false
         BtnSaveOrder.Visible = false
@@ -569,14 +559,12 @@ end)
 BtnSaveOrder.MouseButton1Click:Connect(function()
     SavedCheckpoints[CurrentPlaceId] = TempCheckpoints
     SaveCheckpoints()
-    
     IsReorderMode = false
     BtnToggleReorder.ImageColor3 = Color3.fromRGB(200, 200, 200)
     BtnAddNewTp.Visible = true
     BtnSaveOrder.Visible = false
     BtnCancelOrder.Visible = false
     TxtOrderMode.Visible = false
-    
     Notify("Saved", "تم حفظ الترتيب الجديد بنجاح!", Color3.fromRGB(0, 255, 127))
     RefreshTpList()
 end)
@@ -586,10 +574,7 @@ BtnCancelOrder.MouseButton1Click:Connect(function()
     Notify("Cancelled", "تم إلغاء التعديلات ورجوع الترتيب الأصلي.", Color3.fromRGB(255, 50, 50))
 end)
 
-BtnCloseTp.MouseButton1Click:Connect(function() 
-    TpFrame.Visible = false 
-    CancelEditMode() 
-end)
+BtnCloseTp.MouseButton1Click:Connect(function() TpFrame.Visible = false CancelEditMode() end)
 
 UIS.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -603,15 +588,8 @@ UIS.InputBegan:Connect(function(input)
     end
 end)
 
-BtnAddNewTp.MouseButton1Click:Connect(function()
-    RenameMode = false
-    ModalInput.Text = ""
-    ModalFrame.Visible = true
-end)
-
-BtnCancelModal.MouseButton1Click:Connect(function()
-    ModalFrame.Visible = false
-end)
+BtnAddNewTp.MouseButton1Click:Connect(function() RenameMode = false ModalInput.Text = "" ModalFrame.Visible = true end)
+BtnCancelModal.MouseButton1Click:Connect(function() ModalFrame.Visible = false end)
 
 BtnSaveModal.MouseButton1Click:Connect(function()
     local name = ModalInput.Text
@@ -623,9 +601,7 @@ BtnSaveModal.MouseButton1Click:Connect(function()
                     X = data.X, Y = data.Y, Z = data.Z, 
                     AutoJoin = data.AutoJoin, Order = data.Order
                 }
-                if name ~= SelectedCpName then
-                    SavedCheckpoints[CurrentPlaceId][SelectedCpName] = nil
-                end
+                if name ~= SelectedCpName then SavedCheckpoints[CurrentPlaceId][SelectedCpName] = nil end
                 Notify("Rename", "تم تغيير الاسم إلى: " .. name, Color3.fromRGB(0, 255, 127))
             end
         elseif Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
@@ -634,9 +610,7 @@ BtnSaveModal.MouseButton1Click:Connect(function()
             for _, d in pairs(SavedCheckpoints[CurrentPlaceId]) do
                 if d.Order and d.Order > maxOrder then maxOrder = d.Order end
             end
-            SavedCheckpoints[CurrentPlaceId][name] = {
-                X = pos.X, Y = pos.Y, Z = pos.Z, AutoJoin = false, Order = maxOrder + 1
-            }
+            SavedCheckpoints[CurrentPlaceId][name] = {X = pos.X, Y = pos.Y, Z = pos.Z, AutoJoin = false, Order = maxOrder + 1}
             Notify("Checkpoint", "تم حفظ النقطة بنجاح!", Color3.fromRGB(0, 255, 127))
         end
         SaveCheckpoints()
@@ -647,20 +621,13 @@ BtnSaveModal.MouseButton1Click:Connect(function()
 end)
 
 BtnCtxRename.MouseButton1Click:Connect(function()
-    if SelectedCpName ~= "" then
-        RenameMode = true
-        ModalInput.Text = SelectedCpName
-        ModalFrame.Visible = true
-        ContextMenu.Visible = false
-    end
+    if SelectedCpName ~= "" then RenameMode = true ModalInput.Text = SelectedCpName ModalFrame.Visible = true ContextMenu.Visible = false end
 end)
 
 BtnCtxDelete.MouseButton1Click:Connect(function()
     if SelectedCpName ~= "" then
         SavedCheckpoints[CurrentPlaceId][SelectedCpName] = nil
-        SaveCheckpoints()
-        RefreshTpList()
-        ContextMenu.Visible = false
+        SaveCheckpoints() RefreshTpList() ContextMenu.Visible = false
         Notify("Deleted", "تم حذف النقطة.", Color3.fromRGB(255, 50, 50))
     end
 end)
@@ -670,19 +637,14 @@ BtnCtxAutoJoin.MouseButton1Click:Connect(function()
         local currentState = SavedCheckpoints[CurrentPlaceId][SelectedCpName].AutoJoin
         for n, d in pairs(SavedCheckpoints[CurrentPlaceId]) do d.AutoJoin = false end
         SavedCheckpoints[CurrentPlaceId][SelectedCpName].AutoJoin = not currentState
-        SaveCheckpoints()
-        RefreshTpList()
-        ContextMenu.Visible = false
-        if not currentState then
-            Notify("Auto Join", "تم التفعيل! سيتم نقلك هنا عند دخول الماب.", Color3.fromRGB(0, 255, 127))
-        else
-            Notify("Auto Join", "تم الإيقاف.", Color3.fromRGB(200, 200, 200))
-        end
+        SaveCheckpoints() RefreshTpList() ContextMenu.Visible = false
+        if not currentState then Notify("Auto Join", "تم التفعيل! سيتم نقلك هنا عند دخول الماب.", Color3.fromRGB(0, 255, 127))
+        else Notify("Auto Join", "تم الإيقاف.", Color3.fromRGB(200, 200, 200)) end
     end
 end)
 
 -----------------------------------
--- باقي الأكواد والميزات --
+-- قسم التحكم باللاعبين (Spectate/Fling) --
 -----------------------------------
 local SelectedTargets = {} 
 local TargetCards = {}     
@@ -785,10 +747,7 @@ end
 local function RemoveTarget(plr)
     if SelectedTargets[plr.UserId] then
         SelectedTargets[plr.UserId] = nil
-        if TargetCards[plr.UserId] then
-            TargetCards[plr.UserId]:Destroy()
-            TargetCards[plr.UserId] = nil
-        end
+        if TargetCards[plr.UserId] then TargetCards[plr.UserId]:Destroy() TargetCards[plr.UserId] = nil end
     end
     if SpectatedPlayer == plr then StopSpectating() end
     if ActiveTarget == plr then
@@ -1037,23 +996,26 @@ BtnCmdScare.MouseButton1Click:Connect(function()
     end
 end)
 
+-----------------------------------
+-- قائمة الميزات والمفاتيح (Features) --
+-----------------------------------
 local Features = {
     Fly = false, FlyNoclip = false, GodMode = false, InfJump = false, Noclip = false, 
     InstantPrompt = false, SuperHit = false, AntiAFK = true, ControlWand = false, ESP = false,
     CustomSpeed = false, WalkSpeed = 100, CarSpeed = 100, FlySpeed = 100, CarFlySpeed = 100, 
-    CustomJump = false, JumpValue = 100, Aimbot = false, AimbotFOV = 150
+    CustomJump = false, JumpValue = 100, Aimbot = false, AimbotFOV = 150, RTX = false, Spinbot = false
 }
 local CurrentSpeedState = "Walk"
 
-local function CreateButton(text, parent)
+local function CreateButton(text, parent, textColor)
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0.9, 0, 0, 35)
+    btn.Size = UDim2.new(0.9, 0, 0, 38)
     btn.BackgroundColor3 = Color3.fromRGB(35, 10, 10)
     btn.BackgroundTransparency = 0.5
     btn.Text = text
-    btn.TextColor3 = Color3.fromRGB(200, 200, 200)
+    btn.TextColor3 = textColor or Color3.fromRGB(200, 200, 200)
     btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 14
+    btn.TextSize = 15
     btn.Parent = parent
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
     return btn
@@ -1061,7 +1023,7 @@ end
 
 local function CreateInputRow(text, defaultValue, parent)
     local Row = Instance.new("Frame")
-    Row.Size = UDim2.new(0.9, 0, 0, 35)
+    Row.Size = UDim2.new(0.9, 0, 0, 38)
     Row.BackgroundTransparency = 1
     Row.Parent = parent
 
@@ -1090,57 +1052,156 @@ local function CreateInputRow(text, defaultValue, parent)
     return ToggleBtn, InputBox
 end
 
-local BtnOpenTeleports = CreateButton("Checkpoints", ScrollFrame)
+-- أزرار الواجهة
+local BtnOpenTeleports = CreateButton("📍 Checkpoints Menu", ScrollFrame, Color3.fromRGB(255, 200, 50))
 BtnOpenTeleports.MouseButton1Click:Connect(function()
     TpFrame.Visible = not TpFrame.Visible
-    if TpFrame.Visible then
-        CancelEditMode()
-        RefreshTpList()
-    else
-        CancelEditMode()
-    end
+    if TpFrame.Visible then CancelEditMode() RefreshTpList() else CancelEditMode() end
 end)
 
-local BtnAimbot = CreateButton("Aimbot A: OFF", ScrollFrame)
-local BtnWand = CreateButton("Control Wand : OFF", ScrollFrame)
-local BtnFly = CreateButton("Fly : OFF", ScrollFrame)
-local BtnFlyNoclip = CreateButton("Fly Noclip : OFF", ScrollFrame)
+local BtnRTX = CreateButton("✨ RTX Graphics : OFF", ScrollFrame, Color3.fromRGB(200, 200, 200))
+local BtnSuperHit = CreateButton("💀 Super Hit (Wallbang) : OFF", ScrollFrame, Color3.fromRGB(200, 200, 200))
+local BtnAimbot = CreateButton("🎯 Aimbot A: OFF", ScrollFrame, Color3.fromRGB(200, 200, 200))
+local BtnWand = CreateButton("🪄 Control Wand : OFF", ScrollFrame, Color3.fromRGB(200, 200, 200))
+local BtnFly = CreateButton("🦅 Fly : OFF", ScrollFrame, Color3.fromRGB(200, 200, 200))
+local BtnFlyNoclip = CreateButton("👻 Fly Noclip : OFF", ScrollFrame, Color3.fromRGB(200, 200, 200))
 BtnFlyNoclip.Visible = false
-local BtnESP = CreateButton("ESP: OFF", ScrollFrame)
-local BtnGod = CreateButton("God Mode: OFF", ScrollFrame)
-local BtnRevive = CreateButton("Revive", ScrollFrame)
-local BtnNoclip = CreateButton("Noclip: OFF", ScrollFrame)
-local BtnInstant = CreateButton("Instant Interact: OFF", ScrollFrame)
-local BtnSuperHit = CreateButton("Super Hero Hit : OFF", ScrollFrame)
-local BtnInfJump = CreateButton("Infinite Jump: OFF", ScrollFrame)
-local BtnAntiAFK = CreateButton("Anti-AFK: ON", ScrollFrame)
-BtnAntiAFK.TextColor3 = Color3.fromRGB(0, 255, 127)
+local BtnESP = CreateButton("👁️ ESP: OFF", ScrollFrame, Color3.fromRGB(200, 200, 200))
+local BtnGod = CreateButton("🛡️ God Mode: OFF", ScrollFrame, Color3.fromRGB(200, 200, 200))
+local BtnRevive = CreateButton("💖 Force Revive", ScrollFrame, Color3.fromRGB(255, 100, 100))
+local BtnNoclip = CreateButton("🚶 Noclip (Walk Through Walls): OFF", ScrollFrame, Color3.fromRGB(200, 200, 200))
+local BtnInstant = CreateButton("⚡ Instant Interact: OFF", ScrollFrame, Color3.fromRGB(200, 200, 200))
+local BtnInfJump = CreateButton("🦘 Infinite Jump: OFF", ScrollFrame, Color3.fromRGB(200, 200, 200))
+local BtnAntiAFK = CreateButton("⏳ Anti-AFK: ON", ScrollFrame, Color3.fromRGB(0, 255, 127))
+local BtnSpinbot = CreateButton("🌪️ Spinbot : OFF", ScrollFrame, Color3.fromRGB(200, 200, 200))
+local BtnBtools = CreateButton("🔨 Get Btools", ScrollFrame, Color3.fromRGB(150, 150, 255))
 
-local BtnSpeed, BoxSpeed = CreateInputRow("Walk Speed: OFF", 100, ScrollFrame)
-local BtnJump, BoxJump = CreateInputRow("Jump Power: OFF", 100, ScrollFrame)
+local BtnSpeed, BoxSpeed = CreateInputRow("🏃 Walk Speed: OFF", 100, ScrollFrame)
+local BtnJump, BoxJump = CreateInputRow("🚀 Jump Power: OFF", 100, ScrollFrame)
 
 local function UpdateSpeedDisplay()
     local prefix = ""
     local val = 50
-    if CurrentSpeedState == "Walk" then
-        prefix = "Walk Speed"
-        val = Features.WalkSpeed
-    elseif CurrentSpeedState == "Car" then
-        prefix = "Car Speed"
-        val = Features.CarSpeed
-    elseif CurrentSpeedState == "Fly" then
-        prefix = "Fly Speed"
-        val = Features.FlySpeed
-    elseif CurrentSpeedState == "CarFly" then
-        prefix = "Car Fly Speed"
-        val = Features.CarFlySpeed
-    end
+    if CurrentSpeedState == "Walk" then prefix = "🏃 Walk Speed" val = Features.WalkSpeed
+    elseif CurrentSpeedState == "Car" then prefix = "🏎️ Car Speed" val = Features.CarSpeed
+    elseif CurrentSpeedState == "Fly" then prefix = "🦅 Fly Speed" val = Features.FlySpeed
+    elseif CurrentSpeedState == "CarFly" then prefix = "🛸 Car Fly Speed" val = Features.CarFlySpeed end
     BtnSpeed.Text = prefix .. (Features.CustomSpeed and ": ON" or ": OFF")
     BoxSpeed.Text = tostring(val)
 end
 
 -----------------------------------
--- Aimbot A System مع فحص الجدران (Raycast) والـ TriggerBot
+-- جرافيكس الأساطير (RTX)
+-----------------------------------
+local OriginalMaterials = {}
+BtnRTX.MouseButton1Click:Connect(function()
+    Features.RTX = not Features.RTX
+    BtnRTX.Text = "✨ RTX Graphics : " .. (Features.RTX and "ON" or "OFF")
+    BtnRTX.TextColor3 = Features.RTX and Color3.fromRGB(0, 255, 127) or Color3.fromRGB(200, 200, 200)
+    
+    if Features.RTX then
+        Notify("RTX On", "تم تفعيل الجرافيكس الواقعي! (قد يسبب لاق للأجهزة الضعيفة)", Color3.fromRGB(255, 200, 0))
+        Lighting.GlobalShadows = true
+        Lighting.Ambient = Color3.fromRGB(60, 60, 60)
+        Lighting.Brightness = 3.5
+        Lighting.Technology = Enum.Technology.Future
+        
+        if not Lighting:FindFirstChild("ZokoCC") then
+            local cc = Instance.new("ColorCorrectionEffect", Lighting)
+            cc.Name = "ZokoCC"
+            cc.Brightness = 0.05
+            cc.Contrast = 0.25
+            cc.Saturation = 0.6
+            cc.TintColor = Color3.fromRGB(255, 240, 220)
+        end
+        if not Lighting:FindFirstChild("ZokoBloom") then
+            local bloom = Instance.new("BloomEffect", Lighting)
+            bloom.Name = "ZokoBloom"
+            bloom.Intensity = 0.8
+            bloom.Size = 24
+            bloom.Threshold = 0.6
+        end
+        if not Lighting:FindFirstChild("ZokoSun") then
+            local sun = Instance.new("SunRaysEffect", Lighting)
+            sun.Name = "ZokoSun"
+            sun.Intensity = 0.15
+            sun.Spread = 0.8
+        end
+        
+        task.spawn(function()
+            for i, v in pairs(workspace:GetDescendants()) do
+                if v:IsA("BasePart") and v.Parent ~= workspace.CurrentCamera and not v.Parent:FindFirstChild("Humanoid") then
+                    if not OriginalMaterials[v] then
+                        OriginalMaterials[v] = {Mat = v.Material, Ref = v.Reflectance}
+                    end
+                    if v.Material == Enum.Material.Plastic or v.Material == Enum.Material.SmoothPlastic or v.Material == Enum.Material.Wood or v.Material == Enum.Material.Concrete then
+                        v.Material = Enum.Material.Glass
+                        v.Reflectance = 0.5
+                    end
+                end
+                if i % 200 == 0 then RunService.Heartbeat:Wait() end
+            end
+        end)
+    else
+        if Lighting:FindFirstChild("ZokoCC") then Lighting.ZokoCC:Destroy() end
+        if Lighting:FindFirstChild("ZokoBloom") then Lighting.ZokoBloom:Destroy() end
+        if Lighting:FindFirstChild("ZokoSun") then Lighting.ZokoSun:Destroy() end
+        
+        task.spawn(function()
+            for part, data in pairs(OriginalMaterials) do
+                if part and part.Parent then
+                    part.Material = data.Mat
+                    part.Reflectance = data.Ref
+                end
+            end
+            OriginalMaterials = {}
+            Notify("RTX Off", "تم إرجاع الجرافيكس الأصلي.", Color3.fromRGB(200, 200, 200))
+        end)
+    end
+end)
+
+-----------------------------------
+-- نظام Super Hit (Hitbox Expander / Wallbang)
+-----------------------------------
+local SuperHitLoop
+BtnSuperHit.MouseButton1Click:Connect(function()
+    Features.SuperHit = not Features.SuperHit
+    BtnSuperHit.Text = "💀 Super Hit (Wallbang) : " .. (Features.SuperHit and "ON" or "OFF")
+    BtnSuperHit.TextColor3 = Features.SuperHit and Color3.fromRGB(0, 255, 127) or Color3.fromRGB(200, 200, 200)
+    
+    if Features.SuperHit then
+        Notify("Super Hit ON", "تقدر تطلق من ورا الجدران! (الهيتبوكس كبر للكل)", Color3.fromRGB(0, 255, 127))
+        SuperHitLoop = RunService.Heartbeat:Connect(function()
+            for _, v in pairs(game.Players:GetPlayers()) do
+                if v ~= Player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                    local isEnemy = true
+                    if Player.Team and v.Team and Player.Team == v.Team then isEnemy = false end
+                    if isEnemy then
+                        local hrp = v.Character.HumanoidRootPart
+                        hrp.Size = Vector3.new(45, 45, 45)
+                        hrp.Transparency = 0.8
+                        hrp.BrickColor = BrickColor.new("Bright red")
+                        hrp.Material = Enum.Material.ForceField
+                        hrp.CanCollide = false
+                    end
+                end
+            end
+        end)
+    else
+        if SuperHitLoop then SuperHitLoop:Disconnect() SuperHitLoop = nil end
+        for _, v in pairs(game.Players:GetPlayers()) do
+            if v ~= Player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                local hrp = v.Character.HumanoidRootPart
+                hrp.Size = Vector3.new(2, 2, 1)
+                hrp.Transparency = 1
+            end
+        end
+        Notify("Super Hit OFF", "تم إيقاف النظام.", Color3.fromRGB(200, 200, 200))
+    end
+end)
+
+-----------------------------------
+-- Aimbot A System مع فحص الجدران
 -----------------------------------
 local FOVGui = Instance.new("ScreenGui")
 FOVGui.Name = "Zoko_AimbotFOV"
@@ -1156,7 +1217,6 @@ FOVStroke.Color = Color3.fromRGB(255, 30, 30)
 FOVStroke.Thickness = 1.5
 FOVFrame.Visible = false
 
--- دالة فحص الجدران الجديدة
 local function IsVisible(targetPart)
     local origin = workspace.CurrentCamera.CFrame.Position
     local direction = targetPart.Position - origin
@@ -1166,10 +1226,7 @@ local function IsVisible(targetPart)
     rayParams.IgnoreWater = true
 
     local result = workspace:Raycast(origin, direction, rayParams)
-    -- إذا لم يصطدم بشيء أو اصطدم بالشخص نفسه يعني مكشوف
-    if not result or result.Instance:IsDescendantOf(targetPart.Parent) then
-        return true
-    end
+    if not result or result.Instance:IsDescendantOf(targetPart.Parent) then return true end
     return false
 end
 
@@ -1180,17 +1237,14 @@ local function GetClosestToCenter()
     
     for _, v in pairs(game.Players:GetPlayers()) do
         local isEnemy = true
-        if Player.Team and v.Team and Player.Team == v.Team then
-            isEnemy = false
-        end
+        if Player.Team and v.Team and Player.Team == v.Team then isEnemy = false end
 
         if v ~= Player and isEnemy and v.Character and v.Character:FindFirstChild("Head") and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health > 0 then
             local pos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(v.Character.Head.Position)
             if onScreen then
                 local dist = (Vector2.new(pos.X, pos.Y) - center).Magnitude
                 if dist < closestDist then
-                    -- فحص الجدار تم إضافته هنا
-                    if IsVisible(v.Character.Head) then
+                    if IsVisible(v.Character.Head) or Features.SuperHit then -- إذا مفعل السوبر هيت بيصوب حتى ورا الجدار
                         closestDist = dist
                         closestTarget = v.Character.Head
                     end
@@ -1203,7 +1257,7 @@ end
 
 BtnAimbot.MouseButton1Click:Connect(function()
     Features.Aimbot = not Features.Aimbot
-    BtnAimbot.Text = "Aimbot A: " .. (Features.Aimbot and "ON" or "OFF")
+    BtnAimbot.Text = "🎯 Aimbot A: " .. (Features.Aimbot and "ON" or "OFF")
     BtnAimbot.TextColor3 = Features.Aimbot and Color3.fromRGB(0, 255, 127) or Color3.fromRGB(200, 200, 200)
     FOVFrame.Visible = Features.Aimbot
 end)
@@ -1217,7 +1271,6 @@ local AimbotLoop = RunService.RenderStepped:Connect(function()
             local newCFrame = CFrame.new(camCFrame.Position, targetHead.Position)
             workspace.CurrentCamera.CFrame = camCFrame:Lerp(newCFrame, 0.25)
             
-            -- الإطلاق التلقائي (الـ TriggerBot) شغال دام إنه صار يمسك بس على المكشوف
             if not clicking then
                 clicking = true
                 pcall(function()
@@ -1228,25 +1281,13 @@ local AimbotLoop = RunService.RenderStepped:Connect(function()
                 clicking = false
             end
         end
-        
-        local tool = Player.Character and Player.Character:FindFirstChildOfClass("Tool")
-        if tool then
-            for _, v in pairs(tool:GetDescendants()) do
-                if v:IsA("ValueBase") and type(v.Value) == "number" then
-                    local nameLow = string.lower(v.Name)
-                    if string.find(nameLow, "ammo") or string.find(nameLow, "clip") or string.find(nameLow, "mag") then
-                        v.Value = 999
-                    end
-                end
-            end
-        end
     end
 end)
 
 local ESPLoop = nil
 BtnESP.MouseButton1Click:Connect(function()
     Features.ESP = not Features.ESP
-    BtnESP.Text = string.split(BtnESP.Text, ":")[1] .. (Features.ESP and ": ON" or ": OFF")
+    BtnESP.Text = "👁️ ESP: " .. (Features.ESP and "ON" or "OFF")
     BtnESP.TextColor3 = Features.ESP and Color3.fromRGB(0, 255, 127) or Color3.fromRGB(200, 200, 200)
     
     if Features.ESP then
@@ -1307,7 +1348,7 @@ end
 
 BtnWand.MouseButton1Click:Connect(function()
     Features.ControlWand = not Features.ControlWand
-    BtnWand.Text = string.split(BtnWand.Text, ":")[1] .. (Features.ControlWand and ": ON" or ": OFF")
+    BtnWand.Text = "🪄 Control Wand : " .. (Features.ControlWand and "ON" or "OFF")
     BtnWand.TextColor3 = Features.ControlWand and Color3.fromRGB(0, 255, 127) or Color3.fromRGB(200, 200, 200)
     
     CleanupWands() 
@@ -1341,7 +1382,7 @@ end)
 local FlyLoop, bg, bv, FlyNoclipLoop
 BtnFly.MouseButton1Click:Connect(function()
     Features.Fly = not Features.Fly
-    BtnFly.Text = string.split(BtnFly.Text, ":")[1] .. (Features.Fly and ": ON" or ": OFF")
+    BtnFly.Text = "🦅 Fly : " .. (Features.Fly and "ON" or "OFF")
     BtnFly.TextColor3 = Features.Fly and Color3.fromRGB(0, 255, 127) or Color3.fromRGB(200, 200, 200)
     local char = Player.Character
     if not char then return end
@@ -1392,16 +1433,11 @@ BtnFly.MouseButton1Click:Connect(function()
         
         if Features.FlyNoclip then
             Features.FlyNoclip = false
-            BtnFlyNoclip.Text = string.split(BtnFlyNoclip.Text, ":")[1] .. ": OFF"
+            BtnFlyNoclip.Text = "👻 Fly Noclip : OFF"
             BtnFlyNoclip.TextColor3 = Color3.fromRGB(200, 200, 200)
             if FlyNoclipLoop then FlyNoclipLoop:Disconnect() end
             if Player.Character then
                 for _, part in pairs(Player.Character:GetDescendants()) do if part:IsA("BasePart") then part.CanCollide = true end end
-                local hum = Player.Character:FindFirstChild("Humanoid")
-                if hum and hum.SeatPart then
-                    local fullVehicle = GetTopVehicle(hum.SeatPart)
-                    if fullVehicle then for _, part in pairs(fullVehicle:GetDescendants()) do if part:IsA("BasePart") then part.CanCollide = true end end end
-                end
             end
         end
     end
@@ -1410,48 +1446,73 @@ end)
 BtnFlyNoclip.MouseButton1Click:Connect(function()
     if not Features.Fly then return end
     Features.FlyNoclip = not Features.FlyNoclip
-    BtnFlyNoclip.Text = string.split(BtnFlyNoclip.Text, ":")[1] .. (Features.FlyNoclip and ": ON" or ": OFF")
+    BtnFlyNoclip.Text = "👻 Fly Noclip : " .. (Features.FlyNoclip and "ON" or "OFF")
     BtnFlyNoclip.TextColor3 = Features.FlyNoclip and Color3.fromRGB(0, 255, 127) or Color3.fromRGB(200, 200, 200)
     
     if Features.FlyNoclip then
         FlyNoclipLoop = RunService.Stepped:Connect(function()
             if Features.Fly and Player.Character then
                 for _, part in pairs(Player.Character:GetDescendants()) do if part:IsA("BasePart") then part.CanCollide = false end end
-                local hum = Player.Character:FindFirstChild("Humanoid")
-                if hum and hum.SeatPart then
-                    local fullVehicle = GetTopVehicle(hum.SeatPart)
-                    if fullVehicle then for _, part in pairs(fullVehicle:GetDescendants()) do if part:IsA("BasePart") and part.CanCollide then part.CanCollide = false end end end
-                end
             end
         end)
     else
         if FlyNoclipLoop then FlyNoclipLoop:Disconnect() end
         if Player.Character then
             for _, part in pairs(Player.Character:GetDescendants()) do if part:IsA("BasePart") then part.CanCollide = true end end
-            local hum = Player.Character:FindFirstChild("Humanoid")
-            if hum and hum.SeatPart then
-                local fullVehicle = GetTopVehicle(hum.SeatPart)
-                if fullVehicle then for _, part in pairs(fullVehicle:GetDescendants()) do if part:IsA("BasePart") then part.CanCollide = true end end end
-            end
         end
     end
 end)
 
-local lastNoclipPos = nil
-local NoclipLoop = RunService.Stepped:Connect(function()
-    if Features.Noclip and not Features.Fly and Player.Character then
-        local hrp = Player.Character:FindFirstChild("HumanoidRootPart")
-        local hum = Player.Character:FindFirstChild("Humanoid")
-        for _, part in pairs(Player.Character:GetDescendants()) do if part:IsA("BasePart") and part.CanCollide then part.CanCollide = false end end
-        if hrp and hum and hum.Health > 0 then
-            if lastNoclipPos then
-                local dist = (hrp.Position - lastNoclipPos).Magnitude
-                if dist > 10 and dist < 80 then hrp.CFrame = CFrame.new(lastNoclipPos) end
+-----------------------------------
+-- التعديل الجديد لـ Noclip (اختراق بدون تجميد)
+-----------------------------------
+local NoclipLoop
+BtnNoclip.MouseButton1Click:Connect(function()
+    Features.Noclip = not Features.Noclip
+    BtnNoclip.Text = "🚶 Noclip (Walk Through Walls): " .. (Features.Noclip and "ON" or "OFF")
+    BtnNoclip.TextColor3 = Features.Noclip and Color3.fromRGB(0, 255, 127) or Color3.fromRGB(200, 200, 200)
+    
+    if Features.Noclip then
+        NoclipLoop = RunService.Stepped:Connect(function()
+            if Player.Character then
+                -- نخلي الرأس والجسم يخترق بس الرجلين توقف ع الأرض عشان ما تطيح أو تعلق النطة!
+                for _, part in pairs(Player.Character:GetDescendants()) do
+                    if part:IsA("BasePart") and part.Name ~= "LeftLeg" and part.Name ~= "RightLeg" and part.Name ~= "LeftFoot" and part.Name ~= "RightFoot" and part.Name ~= "Left Lower Leg" and part.Name ~= "Right Lower Leg" then
+                        part.CanCollide = false
+                    end
+                end
             end
-            lastNoclipPos = hrp.Position
-            hum:ChangeState(11) 
+        end)
+    else
+        if NoclipLoop then NoclipLoop:Disconnect() NoclipLoop = nil end
+        if Player.Character then
+            for _, part in pairs(Player.Character:GetDescendants()) do if part:IsA("BasePart") then part.CanCollide = true end end
         end
-    else lastNoclipPos = nil end
+    end
+end)
+
+local SpinbotLoop
+BtnSpinbot.MouseButton1Click:Connect(function()
+    Features.Spinbot = not Features.Spinbot
+    BtnSpinbot.Text = "🌪️ Spinbot : " .. (Features.Spinbot and "ON" or "OFF")
+    BtnSpinbot.TextColor3 = Features.Spinbot and Color3.fromRGB(0, 255, 127) or Color3.fromRGB(200, 200, 200)
+    if Features.Spinbot then
+        SpinbotLoop = RunService.Heartbeat:Connect(function()
+            if Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
+                local hrp = Player.Character.HumanoidRootPart
+                hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(50), 0)
+            end
+        end)
+    else
+        if SpinbotLoop then SpinbotLoop:Disconnect() SpinbotLoop = nil end
+    end
+end)
+
+BtnBtools.MouseButton1Click:Connect(function()
+    local b1 = Instance.new("HopperBin", Player.Backpack) b1.BinType = Enum.BinType.Clone
+    local b2 = Instance.new("HopperBin", Player.Backpack) b2.BinType = Enum.BinType.Hammer
+    local b3 = Instance.new("HopperBin", Player.Backpack) b3.BinType = Enum.BinType.Grab
+    Notify("BTools", "تم إعطائك أدوات التعديل (Hammer/Grab) بالانفنتوري!", Color3.fromRGB(0, 255, 127))
 end)
 
 local RenderLoop = RunService.RenderStepped:Connect(function()
@@ -1520,7 +1581,7 @@ end)
 
 BtnGod.MouseButton1Click:Connect(function()
     Features.GodMode = not Features.GodMode
-    BtnGod.Text = string.split(BtnGod.Text, ":")[1] .. (Features.GodMode and ": ON" or ": OFF")
+    BtnGod.Text = "🛡️ God Mode: " .. (Features.GodMode and "ON" or "OFF")
     BtnGod.TextColor3 = Features.GodMode and Color3.fromRGB(0, 255, 127) or Color3.fromRGB(200, 200, 200)
     if Features.GodMode and Player.Character then
         local hum = Player.Character:FindFirstChildOfClass("Humanoid")
@@ -1581,7 +1642,7 @@ end)
 local InstantInteractLoop
 BtnInstant.MouseButton1Click:Connect(function()
     Features.InstantInteract = not Features.InstantInteract
-    BtnInstant.Text = string.split(BtnInstant.Text, ":")[1] .. (Features.InstantInteract and ": ON" or ": OFF")
+    BtnInstant.Text = "⚡ Instant Interact: " .. (Features.InstantInteract and "ON" or "OFF")
     BtnInstant.TextColor3 = Features.InstantInteract and Color3.fromRGB(0, 255, 127) or Color3.fromRGB(200, 200, 200)
     if Features.InstantInteract then
         InstantInteractLoop = RunService.Heartbeat:Connect(function()
@@ -1590,24 +1651,9 @@ BtnInstant.MouseButton1Click:Connect(function()
     else if InstantInteractLoop then InstantInteractLoop:Disconnect() InstantInteractLoop = nil end end
 end)
 
-BtnNoclip.MouseButton1Click:Connect(function()
-    Features.Noclip = not Features.Noclip
-    BtnNoclip.Text = string.split(BtnNoclip.Text, ":")[1] .. (Features.Noclip and ": ON" or ": OFF")
-    BtnNoclip.TextColor3 = Features.Noclip and Color3.fromRGB(0, 255, 127) or Color3.fromRGB(200, 200, 200)
-    if not Features.Noclip and Player.Character then
-        for _, part in pairs(Player.Character:GetDescendants()) do if part:IsA("BasePart") then part.CanCollide = true end end
-    end
-end)
-
-BtnSuperHit.MouseButton1Click:Connect(function()
-    Features.SuperHit = not Features.SuperHit
-    BtnSuperHit.Text = string.split(BtnSuperHit.Text, ":")[1] .. (Features.SuperHit and ": ON" or ": OFF")
-    BtnSuperHit.TextColor3 = Features.SuperHit and Color3.fromRGB(0, 255, 127) or Color3.fromRGB(200, 200, 200)
-end)
-
 BtnInfJump.MouseButton1Click:Connect(function()
     Features.InfJump = not Features.InfJump
-    BtnInfJump.Text = string.split(BtnInfJump.Text, ":")[1] .. (Features.InfJump and ": ON" or ": OFF")
+    BtnInfJump.Text = "🦘 Infinite Jump: " .. (Features.InfJump and "ON" or "OFF")
     BtnInfJump.TextColor3 = Features.InfJump and Color3.fromRGB(0, 255, 127) or Color3.fromRGB(200, 200, 200)
 end)
 
@@ -1633,13 +1679,13 @@ end)
 
 BtnAntiAFK.MouseButton1Click:Connect(function()
     Features.AntiAFK = not Features.AntiAFK
-    BtnAntiAFK.Text = string.split(BtnAntiAFK.Text, ":")[1] .. (Features.AntiAFK and ": ON" or ": OFF")
+    BtnAntiAFK.Text = "⏳ Anti-AFK: " .. (Features.AntiAFK and "ON" or "OFF")
     BtnAntiAFK.TextColor3 = Features.AntiAFK and Color3.fromRGB(0, 255, 127) or Color3.fromRGB(200, 200, 200)
 end)
 
 BtnJump.MouseButton1Click:Connect(function()
     Features.CustomJump = not Features.CustomJump
-    BtnJump.Text = string.split(BtnJump.Text, ":")[1] .. (Features.CustomJump and ": ON" or ": OFF")
+    BtnJump.Text = "🚀 Jump Power: " .. (Features.CustomJump and "ON" or "OFF")
     BtnJump.TextColor3 = Features.CustomJump and Color3.fromRGB(0, 255, 127) or Color3.fromRGB(200, 200, 200)
     if not Features.CustomJump and Player.Character then Player.Character.Humanoid.UseJumpPower = false end
 end)
@@ -1667,16 +1713,15 @@ local RestartBtn = Instance.new("TextButton")
 RestartBtn.Size = UDim2.new(1, 0, 0, 20)
 RestartBtn.Position = UDim2.new(0, 0, 1, -22)
 RestartBtn.BackgroundTransparency = 1
-RestartBtn.Text = "RESTART"
+RestartBtn.Text = "RESTART SCRIPT"
 RestartBtn.TextColor3 = Color3.fromRGB(255, 30, 30)
 RestartBtn.Font = Enum.Font.GothamBlack
 RestartBtn.TextSize = 16
 RestartBtn.Parent = MainFrame
-local RestartGlow = Instance.new("UIStroke")
+local RestartGlow = Instance.new("UIStroke", RestartBtn)
 RestartGlow.Color = Color3.fromRGB(255, 30, 30)
 RestartGlow.Transparency = 0.5
 RestartGlow.Thickness = 0.6
-RestartGlow.Parent = RestartBtn
 
 RestartBtn.MouseButton1Click:Connect(function()
     CleanupWands()
@@ -1689,6 +1734,8 @@ RestartBtn.MouseButton1Click:Connect(function()
     if FlyNoclipLoop then FlyNoclipLoop:Disconnect() end
     if ESPLoop then ESPLoop:Disconnect() end
     if AimbotLoop then AimbotLoop:Disconnect() end
+    if SuperHitLoop then SuperHitLoop:Disconnect() end
+    if SpinbotLoop then SpinbotLoop:Disconnect() end
     if bg then bg:Destroy() end
     if bv then bv:Destroy() end
     
@@ -1698,17 +1745,19 @@ RestartBtn.MouseButton1Click:Connect(function()
 end)
 
 local OpenBtn = Instance.new("TextButton")
-OpenBtn.Size = UDim2.new(0, 45, 0, 45)
+OpenBtn.Size = UDim2.new(0, 50, 0, 50)
 OpenBtn.Position = UDim2.new(0, 15, 0.5, 0)
-OpenBtn.BackgroundColor3 = Color3.fromRGB(20, 5, 5)
-OpenBtn.BackgroundTransparency = 0.3
+OpenBtn.BackgroundColor3 = Color3.fromRGB(15, 0, 0)
+OpenBtn.BackgroundTransparency = 0.2
 OpenBtn.Text = "Z"
 OpenBtn.Font = Enum.Font.GothamBlack
-OpenBtn.TextSize = 22
+OpenBtn.TextSize = 24
 OpenBtn.TextColor3 = Color3.fromRGB(255, 30, 30)
 OpenBtn.Parent = ScreenGui
 Instance.new("UICorner", OpenBtn).CornerRadius = UDim.new(1, 0)
-local OpenStroke = Instance.new("UIStroke", OpenBtn) OpenStroke.Color = Color3.fromRGB(255, 30, 30)
+local OpenStroke = Instance.new("UIStroke", OpenBtn) 
+OpenStroke.Color = Color3.fromRGB(255, 20, 20)
+OpenStroke.Thickness = 2
 MakeDraggable(OpenBtn)
 
 OpenBtn.MouseButton1Click:Connect(function()
@@ -1718,11 +1767,11 @@ OpenBtn.MouseButton1Click:Connect(function()
         MainFrame.Visible = false
     else
         MainFrame.Visible = true
-        MainFrame:TweenSize(UDim2.new(0, 270, 0, 400), "Out", "Back", 0.5, true)
+        MainFrame:TweenSize(UDim2.new(0, 290, 0, 460), "Out", "Back", 0.5, true)
     end
 end)
 
-MainFrame:TweenSize(UDim2.new(0, 270, 0, 400), "Out", "Back", 0.6, true)
+MainFrame:TweenSize(UDim2.new(0, 290, 0, 460), "Out", "Back", 0.6, true)
 
 -----------------------------------
 -- تنفيذ الانتقال عند الدخول ------
