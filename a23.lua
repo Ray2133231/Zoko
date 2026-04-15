@@ -1504,7 +1504,6 @@ end)
 -----------------------------------
 local OriginalLighting = {}
 local OriginalWater = {}
-local OriginalPartData = {} -- لحفظ حالة كل قطعة قبل تعديلها
 local AAALoop
 local CharacterGraphicsLoop
 
@@ -1514,7 +1513,7 @@ BtnGraphics.MouseButton1Click:Connect(function()
     BtnGraphics.TextColor3 = Features.RTXGraphics and Color3.fromRGB(0, 255, 127) or Color3.fromRGB(200, 200, 200)
 
     if Features.RTXGraphics then
-        -- حفظ إعدادات الإضاءة والمياه الأصلية
+        -- حفظ إعدادات الإضاءة الأصلية
         OriginalLighting.GlobalShadows = Lighting.GlobalShadows
         OriginalLighting.Brightness = Lighting.Brightness
         OriginalLighting.Ambient = Lighting.Ambient
@@ -1528,140 +1527,97 @@ BtnGraphics.MouseButton1Click:Connect(function()
         OriginalWater.Transparency = workspace.Terrain.WaterTransparency
 
         task.spawn(function()
-            pcall(function()
-                sethiddenproperty(Lighting, "Technology", 3) -- Future Lighting
-            end)
+            pcall(function() sethiddenproperty(Lighting, "Technology", 3) end) -- Future Lighting
 
+            -- 1. إضاءة سينمائية قوية مع ظلال واضحة جداً (Ray-Traced Style)
             pcall(function()
-                -- 1. الإضاءة السينمائية (تغيير الجو لواقعي جداً)
                 Lighting.GlobalShadows = true
-                Lighting.Brightness = 3
-                Lighting.ClockTime = 16.5 
-                Lighting.Ambient = Color3.fromRGB(70, 70, 70)
-                Lighting.OutdoorAmbient = Color3.fromRGB(90, 90, 100)
-                Lighting.ColorShift_Top = Color3.fromRGB(255, 240, 220)
-                Lighting.ExposureCompensation = 0.2 
+                Lighting.Brightness = 4
+                Lighting.ShadowSoftness = 0.15 
                 Lighting.EnvironmentDiffuseScale = 1
                 Lighting.EnvironmentSpecularScale = 1
+                Lighting.ColorShift_Top = Color3.fromRGB(255, 247, 237)
+                Lighting.ColorShift_Bottom = Color3.fromRGB(163, 177, 198)
+                Lighting.Ambient = Color3.fromRGB(45, 45, 45)
+                Lighting.OutdoorAmbient = Color3.fromRGB(85, 90, 95)
+                Lighting.ExposureCompensation = 0.35
                 
+                -- المويه واقعية
                 workspace.Terrain.Decoration = true
                 MaterialService.Use2022Materials = true
-
-                workspace.Terrain.WaterColor = Color3.fromRGB(15, 60, 75)
+                workspace.Terrain.WaterColor = Color3.fromRGB(17, 85, 105)
                 workspace.Terrain.WaterReflectance = 1
-                workspace.Terrain.WaterWaveSize = 0.35 
-                workspace.Terrain.WaterWaveSpeed = 22  
+                workspace.Terrain.WaterWaveSize = 0.2
+                workspace.Terrain.WaterWaveSpeed = 15
                 workspace.Terrain.WaterTransparency = 0.8
                 
-                if not Lighting:FindFirstChild("ZokoForzaColor") then
-                    local CC = Instance.new("ColorCorrectionEffect", Lighting)
-                    CC.Name = "ZokoForzaColor"
-                    CC.Brightness = 0.02
-                    CC.Contrast = 0.18
-                    CC.Saturation = 0.45 
-                    CC.TintColor = Color3.fromRGB(255, 248, 235) 
+                -- 2. الفلاتر السينمائية والألوان المجنونة
+                if not Lighting:FindFirstChild("ZokoAAAColor") then
+                    local cc = Instance.new("ColorCorrectionEffect", Lighting)
+                    cc.Name = "ZokoAAAColor"
+                    cc.Brightness = 0.05
+                    cc.Contrast = 0.25
+                    cc.Saturation = 0.6 
+                    cc.TintColor = Color3.fromRGB(255, 252, 245)
                 end
 
-                if not Lighting:FindFirstChild("ZokoSun") then
-                    local Sun = Instance.new("SunRaysEffect", Lighting)
-                    Sun.Name = "ZokoSun"
-                    Sun.Intensity = 0.08
-                    Sun.Spread = 0.9
+                -- 3. توهج سحري ونور قمر/شمس يلمع
+                if not Lighting:FindFirstChild("ZokoAAABloom") then
+                    local bloom = Instance.new("BloomEffect", Lighting)
+                    bloom.Name = "ZokoAAABloom"
+                    bloom.Intensity = 0.8
+                    bloom.Size = 24
+                    bloom.Threshold = 1.5
                 end
 
-                if not Lighting:FindFirstChild("ZokoAtmo") then
-                    local atmosphere = Instance.new("Atmosphere", Lighting)
-                    atmosphere.Name = "ZokoAtmo"
-                    atmosphere.Density = 0.35
-                    atmosphere.Offset = 0.25
-                    atmosphere.Color = Color3.fromRGB(199, 199, 199)
-                    atmosphere.Decay = Color3.fromRGB(106, 112, 125)
-                    atmosphere.Glare = 0.5
-                    atmosphere.Haze = 1.8
+                -- 4. أشعة الشمس الخرافية
+                if not Lighting:FindFirstChild("ZokoAAASun") then
+                    local sunRays = Instance.new("SunRaysEffect", Lighting)
+                    sunRays.Name = "ZokoAAASun"
+                    sunRays.Intensity = 0.15
+                    sunRays.Spread = 0.85
                 end
 
-                if not workspace.Terrain:FindFirstChild("ZokoClouds") then
-                    local clouds = Instance.new("Clouds", workspace.Terrain)
-                    clouds.Name = "ZokoClouds"
-                    clouds.Cover = 0.65
-                    clouds.Density = 0.7
-                    clouds.Color = Color3.fromRGB(255, 255, 255)
+                -- 5. ضباب وغيوم سينمائية
+                if not Lighting:FindFirstChild("ZokoAAAAtmo") then
+                    local atmo = Instance.new("Atmosphere", Lighting)
+                    atmo.Name = "ZokoAAAAtmo"
+                    atmo.Density = 0.3
+                    atmo.Offset = 0.25
+                    atmo.Color = Color3.fromRGB(199, 199, 199)
+                    atmo.Decay = Color3.fromRGB(106, 112, 125)
+                    atmo.Glare = 0.5
+                    atmo.Haze = 1.5
+                end
+
+                -- 6. تركيز الكاميرا الواقعي (Depth of Field)
+                if not Lighting:FindFirstChild("ZokoAAADOF") then
+                    local dof = Instance.new("DepthOfFieldEffect", Lighting)
+                    dof.Name = "ZokoAAADOF"
+                    dof.FocusDistance = 50
+                    dof.InFocusRadius = 50
+                    dof.NearIntensity = 0.1
+                    dof.FarIntensity = 0.2
+                end
+
+                -- 7. سماء خرافية 4K تعطي الشمس والقمر تفاصيل ماتتصدق
+                if not Lighting:FindFirstChild("ZokoAAASky") then
+                    local sky = Instance.new("Sky", Lighting)
+                    sky.Name = "ZokoAAASky"
+                    sky.SunTextureId = "rbxassetid://617350682"
+                    sky.MoonTextureId = "rbxassetid://9709149431"
+                    sky.SkyboxBk = "rbxassetid://600886090"
+                    sky.SkyboxDn = "rbxassetid://600886090"
+                    sky.SkyboxFt = "rbxassetid://600886090"
+                    sky.SkyboxLf = "rbxassetid://600886090"
+                    sky.SkyboxRt = "rbxassetid://600886090"
+                    sky.SkyboxUp = "rbxassetid://600886090"
+                    sky.StarCount = 5000
                 end
             end)
-
-            -- 2. خوارزمية تعديل الماب (شوارع أسفلت، تراب، سيارات)
-            local descendants = workspace:GetDescendants()
-            for i, obj in ipairs(descendants) do
-                if obj:IsA("BasePart") then
-                    -- استثناء أجزاء الشخصيات عشان نعدلها بشكل منفصل ومخصص
-                    if not (obj.Parent:FindFirstChild("Humanoid") or (obj.Parent.Parent and obj.Parent.Parent:FindFirstChild("Humanoid"))) then
-                        
-                        -- حفظ الداتا الأصلية قبل التعديل
-                        if not OriginalPartData[obj] then
-                            OriginalPartData[obj] = {
-                                Material = obj.Material,
-                                Reflectance = obj.Reflectance,
-                                Transparency = obj.Transparency
-                            }
-                        end
-
-                        local name = obj.Name:lower()
-                        local r, g, b = obj.Color.R, obj.Color.G, obj.Color.B
-
-                        -- الزجاج
-                        if name:match("window") or name:match("glass") or name:match("windshield") or name:match("mirror") then
-                            obj.Material = Enum.Material.Glass
-                            obj.Reflectance = 0.9
-                            obj.Transparency = math.max(0.4, obj.Transparency)
-                        
-                        -- السيارات
-                        elseif name:match("car") or name:match("body") or name:match("vehicle") or name:match("hood") or name:match("door") then
-                            if obj.Material == Enum.Material.Plastic or obj.Material == Enum.Material.SmoothPlastic or obj.Material == Enum.Material.Neon then
-                                obj.Material = Enum.Material.SmoothPlastic
-                                obj.Reflectance = 0.5 
-                            end
-                        
-                        -- النباتات
-                        elseif name:match("tree") or name:match("leaf") or name:match("leaves") or name:match("bush") or name:match("grass") then
-                            obj.Material = Enum.Material.LeafyGrass
-                        elseif name:match("wood") or name:match("trunk") then
-                            obj.Material = Enum.Material.Wood
-                        
-                        -- حل مشكلة الشوارع (إذا القطعة لونها رصاصي/أسود تصير أسفلت، إذا غير كذا تصير تراب أو عشب)
-                        elseif name:match("ground") or name:match("floor") or name:match("baseplate") or name:match("road") or name:match("street") then
-                            -- التحقق من اللون: إذا كانت الألوان متقاربة جداً (يعني درجة رصاصي أو أسود أو أبيض)
-                            if math.abs(r - g) < 0.1 and math.abs(g - b) < 0.1 then
-                                obj.Material = Enum.Material.Asphalt
-                            else
-                                obj.Material = Enum.Material.Mud
-                            end
-                        elseif name:match("dirt") or name:match("mud") or name:match("sand") then
-                            obj.Material = Enum.Material.Mud
-                        end
-                    end
-                end
-                if i % 1000 == 0 then task.wait() end -- يمنع التعليق
-            end
         end)
 
-        -- 3. تنعيم الشخصيات باستمرار (عشان لو رسبن شخص جديد)
-        CharacterGraphicsLoop = RunService.Heartbeat:Connect(function()
-            for _, p in pairs(game.Players:GetPlayers()) do
-                if p.Character then
-                    for _, part in pairs(p.Character:GetDescendants()) do
-                        if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" and part.Transparency < 1 then
-                            if not OriginalPartData[part] then
-                                OriginalPartData[part] = { Material = part.Material, Reflectance = part.Reflectance, Transparency = part.Transparency }
-                            end
-                            part.Material = Enum.Material.SmoothPlastic
-                            part.Reflectance = 0.05 -- يعطي لمعة بشرة وملابس واقعية تحت الشمس
-                        end
-                    end
-                end
-            end
-        end)
-
-        -- 4. الكاميرا الأسطورية (الاهتزاز)
+        -- الكاميرا الأسطورية (اهتزاز وتفاعل مع السرعة)
         local tick_time = 0
         local cam = workspace.CurrentCamera
         
@@ -1696,7 +1652,7 @@ BtnGraphics.MouseButton1Click:Connect(function()
             end
         end)
 
-        Notify("AAA Realism", "تم التفعيل! شوارع واقعية، وتنعيم كامل لجسم الشخصيات واللاعبين.", Color3.fromRGB(0, 255, 127))
+        Notify("AAA Graphics", "تم التفعيل! سماء مخصصة، وألوان وظلال بمستوى ألعاب AAA.", Color3.fromRGB(0, 255, 127))
     else
         -- الإغلاق والإرجاع للوضع الأصلي
         task.spawn(function()
@@ -1718,19 +1674,12 @@ BtnGraphics.MouseButton1Click:Connect(function()
                 workspace.Terrain.WaterWaveSpeed = OriginalWater.WaveSpeed or 10
                 workspace.Terrain.WaterTransparency = OriginalWater.Transparency or 0.3
 
-                if Lighting:FindFirstChild("ZokoForzaColor") then Lighting.ZokoForzaColor:Destroy() end
-                if Lighting:FindFirstChild("ZokoSun") then Lighting.ZokoSun:Destroy() end
-                if Lighting:FindFirstChild("ZokoAtmo") then Lighting.ZokoAtmo:Destroy() end
-                if workspace.Terrain:FindFirstChild("ZokoClouds") then workspace.Terrain.ZokoClouds:Destroy() end
-                
-                for obj, data in pairs(OriginalPartData) do
-                    if obj and obj.Parent then
-                        obj.Material = data.Material
-                        obj.Reflectance = data.Reflectance
-                        obj.Transparency = data.Transparency
-                    end
-                end
-                OriginalPartData = {} 
+                if Lighting:FindFirstChild("ZokoAAAColor") then Lighting.ZokoAAAColor:Destroy() end
+                if Lighting:FindFirstChild("ZokoAAABloom") then Lighting.ZokoAAABloom:Destroy() end
+                if Lighting:FindFirstChild("ZokoAAASun") then Lighting.ZokoAAASun:Destroy() end
+                if Lighting:FindFirstChild("ZokoAAAAtmo") then Lighting.ZokoAAAAtmo:Destroy() end
+                if Lighting:FindFirstChild("ZokoAAADOF") then Lighting.ZokoAAADOF:Destroy() end
+                if Lighting:FindFirstChild("ZokoAAASky") then Lighting.ZokoAAASky:Destroy() end
                 
                 if AAALoop then AAALoop:Disconnect() end
                 if CharacterGraphicsLoop then CharacterGraphicsLoop:Disconnect() end
@@ -1970,8 +1919,6 @@ RestartBtn.MouseButton1Click:Connect(function()
     if SuperHitLoop then SuperHitLoop:Disconnect() end
     if AAALoop then AAALoop:Disconnect() end
     if CharacterGraphicsLoop then CharacterGraphicsLoop:Disconnect() end
-    if bg then bg:Destroy() end
-    if bv then bv:Destroy() end
     
     workspace.CurrentCamera.CameraSubject = Player.Character:WaitForChild("Humanoid")
     ScreenGui:Destroy()
