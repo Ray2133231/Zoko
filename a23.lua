@@ -1500,12 +1500,13 @@ BtnSuperHit.MouseButton1Click:Connect(function()
 end)
 
 -----------------------------------
--- نظام الجرافيكس الأسطوري (AAA Graphics & Realism) --
+-- نظام الجرافيكس الأسطوري (Smart AAA Graphics & Dynamic Exposure) --
 -----------------------------------
 local OriginalLighting = {}
 local OriginalWater = {}
+local OriginalPartData = {}
 local AAALoop
-local CharacterGraphicsLoop
+local SmartLightingLoop
 
 BtnGraphics.MouseButton1Click:Connect(function()
     Features.RTXGraphics = not Features.RTXGraphics
@@ -1527,20 +1528,20 @@ BtnGraphics.MouseButton1Click:Connect(function()
         OriginalWater.Transparency = workspace.Terrain.WaterTransparency
 
         task.spawn(function()
-            pcall(function() sethiddenproperty(Lighting, "Technology", 3) end) -- Future Lighting
+            pcall(function() sethiddenproperty(Lighting, "Technology", 3) end) -- Future Lighting إجباري
 
-            -- 1. إضاءة سينمائية قوية مع ظلال واضحة جداً (Ray-Traced Style)
+            -- 1. إضاءة ذكية وقوية (تأثير عين الإنسان الحقيقي)
             pcall(function()
                 Lighting.GlobalShadows = true
-                Lighting.Brightness = 4
-                Lighting.ShadowSoftness = 0.15 
-                Lighting.EnvironmentDiffuseScale = 1
+                Lighting.ShadowSoftness = 0.1 -- ظلال حادة وواقعية جداً زي الواقع
+                Lighting.Brightness = 6.5 -- شمس قوية جداً عشان التباين
+                Lighting.Ambient = Color3.fromRGB(5, 5, 5) -- داخل البيت يصير مظلم دامس
+                Lighting.OutdoorAmbient = Color3.fromRGB(40, 45, 55) -- برا يكون واقعي
+                Lighting.EnvironmentDiffuseScale = 1 -- تفعيل اللمعان الواقعي PBR
                 Lighting.EnvironmentSpecularScale = 1
-                Lighting.ColorShift_Top = Color3.fromRGB(255, 247, 237)
-                Lighting.ColorShift_Bottom = Color3.fromRGB(163, 177, 198)
-                Lighting.Ambient = Color3.fromRGB(45, 45, 45)
-                Lighting.OutdoorAmbient = Color3.fromRGB(85, 90, 95)
-                Lighting.ExposureCompensation = 0.35
+                Lighting.ExposureCompensation = 0.45 -- السطوع الافتراضي
+                Lighting.ColorShift_Top = Color3.fromRGB(255, 245, 230)
+                Lighting.ColorShift_Bottom = Color3.fromRGB(150, 160, 170)
                 
                 -- المويه واقعية
                 workspace.Terrain.Decoration = true
@@ -1551,56 +1552,46 @@ BtnGraphics.MouseButton1Click:Connect(function()
                 workspace.Terrain.WaterWaveSpeed = 15
                 workspace.Terrain.WaterTransparency = 0.8
                 
-                -- 2. الفلاتر السينمائية والألوان المجنونة
+                -- 2. ألوان Forza (تباين وتشبع خرافي)
                 if not Lighting:FindFirstChild("ZokoAAAColor") then
                     local cc = Instance.new("ColorCorrectionEffect", Lighting)
                     cc.Name = "ZokoAAAColor"
-                    cc.Brightness = 0.05
+                    cc.Brightness = 0.03
                     cc.Contrast = 0.25
-                    cc.Saturation = 0.6 
+                    cc.Saturation = 0.45 
                     cc.TintColor = Color3.fromRGB(255, 252, 245)
                 end
 
-                -- 3. توهج سحري ونور قمر/شمس يلمع
+                -- 3. توهج مجنون للشمس والقمر
                 if not Lighting:FindFirstChild("ZokoAAABloom") then
                     local bloom = Instance.new("BloomEffect", Lighting)
                     bloom.Name = "ZokoAAABloom"
-                    bloom.Intensity = 0.8
-                    bloom.Size = 24
-                    bloom.Threshold = 1.5
+                    bloom.Intensity = 1.2
+                    bloom.Size = 35
+                    bloom.Threshold = 2 -- يخلي بس الأشياء القوية (الشمس) تتوهج
                 end
 
                 -- 4. أشعة الشمس الخرافية
                 if not Lighting:FindFirstChild("ZokoAAASun") then
                     local sunRays = Instance.new("SunRaysEffect", Lighting)
                     sunRays.Name = "ZokoAAASun"
-                    sunRays.Intensity = 0.15
-                    sunRays.Spread = 0.85
+                    sunRays.Intensity = 0.2
+                    sunRays.Spread = 0.9
                 end
 
                 -- 5. ضباب وغيوم سينمائية
                 if not Lighting:FindFirstChild("ZokoAAAAtmo") then
                     local atmo = Instance.new("Atmosphere", Lighting)
                     atmo.Name = "ZokoAAAAtmo"
-                    atmo.Density = 0.3
+                    atmo.Density = 0.25
                     atmo.Offset = 0.25
                     atmo.Color = Color3.fromRGB(199, 199, 199)
                     atmo.Decay = Color3.fromRGB(106, 112, 125)
-                    atmo.Glare = 0.5
-                    atmo.Haze = 1.5
+                    atmo.Glare = 0.6
+                    atmo.Haze = 1.7
                 end
 
-                -- 6. تركيز الكاميرا الواقعي (Depth of Field)
-                if not Lighting:FindFirstChild("ZokoAAADOF") then
-                    local dof = Instance.new("DepthOfFieldEffect", Lighting)
-                    dof.Name = "ZokoAAADOF"
-                    dof.FocusDistance = 50
-                    dof.InFocusRadius = 50
-                    dof.NearIntensity = 0.1
-                    dof.FarIntensity = 0.2
-                end
-
-                -- 7. سماء خرافية 4K تعطي الشمس والقمر تفاصيل ماتتصدق
+                -- 6. سماء 4K واقعية
                 if not Lighting:FindFirstChild("ZokoAAASky") then
                     local sky = Instance.new("Sky", Lighting)
                     sky.Name = "ZokoAAASky"
@@ -1615,9 +1606,51 @@ BtnGraphics.MouseButton1Click:Connect(function()
                     sky.StarCount = 5000
                 end
             end)
+
+            -- 7. إضافة تفاصيل للمجسمات (بدون تغيير خاماتها الأصلية)
+            for _, obj in pairs(workspace:GetDescendants()) do
+                if obj:IsA("BasePart") then
+                    if not OriginalPartData[obj] then
+                        OriginalPartData[obj] = {
+                            Reflectance = obj.Reflectance,
+                            CastShadow = obj.CastShadow
+                        }
+                    end
+                    
+                    obj.CastShadow = true -- إجبار الظل على كل المجسمات لواقعية أكثر
+                    
+                    -- تعزيز اللمعة بشكل طفيف بناءً على الخامة الأصلية
+                    if obj.Material == Enum.Material.Plastic or obj.Material == Enum.Material.SmoothPlastic then
+                        obj.Reflectance = math.clamp(obj.Reflectance + 0.1, 0, 1)
+                    elseif obj.Material == Enum.Material.Metal then
+                        obj.Reflectance = math.clamp(obj.Reflectance + 0.3, 0, 1)
+                    end
+                end
+                task.wait() -- يمنع اللاق
+            end
         end)
 
-        -- الكاميرا الأسطورية (اهتزاز وتفاعل مع السرعة)
+        -- 8. سكربت الإضاءة الذكية (يعرف إذا أنت داخل بيت أو برا ويغير الألوان)
+        SmartLightingLoop = RunService.RenderStepped:Connect(function(dt)
+            if not Player.Character or not Player.Character:FindFirstChild("Head") then return end
+            local head = Player.Character.Head
+            
+            -- يطلق ليزر وهمي لفوق عشان يشوف فيه سقف ولا لا
+            local params = RaycastParams.new()
+            params.FilterDescendantsInstances = {Player.Character}
+            local isIndoors = workspace:Raycast(head.Position, Vector3.new(0, 100, 0), params)
+            
+            -- تغيير الإضاءة والسطوع بذكاء
+            local targetExposure = isIndoors and -0.1 or 0.45 -- لو مسقوف يصير مظلم
+            local targetContrast = isIndoors and 0.1 or 0.25
+            
+            Lighting.ExposureCompensation = Lighting.ExposureCompensation + (targetExposure - Lighting.ExposureCompensation) * 0.05
+            if Lighting:FindFirstChild("ZokoAAAColor") then
+                Lighting.ZokoAAAColor.Contrast = Lighting.ZokoAAAColor.Contrast + (targetContrast - Lighting.ZokoAAAColor.Contrast) * 0.05
+            end
+        end)
+
+        -- 9. الكاميرا الأسطورية (اهتزاز وتفاعل مع السرعة)
         local tick_time = 0
         local cam = workspace.CurrentCamera
         
@@ -1652,9 +1685,9 @@ BtnGraphics.MouseButton1Click:Connect(function()
             end
         end)
 
-        Notify("AAA Graphics", "تم التفعيل! سماء مخصصة، وألوان وظلال بمستوى ألعاب AAA.", Color3.fromRGB(0, 255, 127))
+        Notify("Smart AAA Graphics", "تم تفعيل الإضاءة الذكية! ظلال وتفاصيل بدون تغيير الماب.", Color3.fromRGB(0, 255, 127))
     else
-        -- الإغلاق والإرجاع للوضع الأصلي
+        -- الإغلاق والإرجاع للوضع الأصلي بالكامل
         task.spawn(function()
             pcall(function()
                 Lighting.GlobalShadows = OriginalLighting.GlobalShadows or true
@@ -1681,8 +1714,16 @@ BtnGraphics.MouseButton1Click:Connect(function()
                 if Lighting:FindFirstChild("ZokoAAADOF") then Lighting.ZokoAAADOF:Destroy() end
                 if Lighting:FindFirstChild("ZokoAAASky") then Lighting.ZokoAAASky:Destroy() end
                 
+                for obj, data in pairs(OriginalPartData) do
+                    if obj and obj.Parent then
+                        obj.Reflectance = data.Reflectance
+                        obj.CastShadow = data.CastShadow
+                    end
+                end
+                OriginalPartData = {} 
+
                 if AAALoop then AAALoop:Disconnect() end
-                if CharacterGraphicsLoop then CharacterGraphicsLoop:Disconnect() end
+                if SmartLightingLoop then SmartLightingLoop:Disconnect() end
                 
                 workspace.CurrentCamera.FieldOfView = 70
                 if Player.Character and Player.Character:FindFirstChild("Humanoid") then
@@ -1918,7 +1959,7 @@ RestartBtn.MouseButton1Click:Connect(function()
     if AimbotLoop then AimbotLoop:Disconnect() end
     if SuperHitLoop then SuperHitLoop:Disconnect() end
     if AAALoop then AAALoop:Disconnect() end
-    if CharacterGraphicsLoop then CharacterGraphicsLoop:Disconnect() end
+    if SmartLightingLoop then SmartLightingLoop:Disconnect() end
     
     workspace.CurrentCamera.CameraSubject = Player.Character:WaitForChild("Humanoid")
     ScreenGui:Destroy()
